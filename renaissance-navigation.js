@@ -1,0 +1,60 @@
+(() => {
+  'use strict';
+  const second = document.body.classList.contains('perspective-experience');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  let leaving = false, swallowClick = false;
+  const incoming = new URLSearchParams(location.search).get('enter');
+  if (incoming === 'next' || incoming === 'previous') {
+    document.body.dataset.enter = incoming;
+    document.body.addEventListener('animationend', () => delete document.body.dataset.enter, { once: true });
+  }
+  function navigate(href) {
+    if (leaving) return;
+    const target = new URL(href, location.href);
+    if (target.pathname === location.pathname) return;
+    const direction = second ? 'previous' : 'next';
+    target.searchParams.set('enter', direction);
+    leaving = true;
+    document.body.dataset.leave = direction;
+    setTimeout(() => location.assign(target.href), reduced.matches ? 0 : 180);
+  }
+  document.addEventListener('click', e => {
+    if (swallowClick) { e.preventDefault(); e.stopImmediatePropagation(); swallowClick = false; return; }
+    const link = e.target.closest('.next-experience');
+    if (!link || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+    e.preventDefault(); navigate(link.href);
+  }, true);
+  const homeButton = document.getElementById('goHome');
+  if (homeButton) {
+    // Inside the hub's iframe the hub already shows its own back control at the top-left.
+    if (window.parent !== window) homeButton.hidden = true;
+    homeButton.addEventListener('click', () => {
+      if (window.parent !== window) window.parent.postMessage('renaissance:home', window.location.origin);
+      else location.href = 'index.html';
+    });
+  }
+  // DMD INTER has no concept film, so the vanishing-point page has nothing to swipe back to.
+  if (!second) {
+    // Swiping right on the concept film moves forward into the vanishing-point page. The scene's own
+    // canvas drag (moving the column or the eye) stops its pointerdown from reaching here, so it never
+    // fights with this gesture. The opening painting comes first, so there is no swiping past it.
+    let swipeStart = null;
+    document.addEventListener('pointerdown', e => {
+      swipeStart = null;
+      if (document.body.classList.contains('artwork-intro') || e.button !== 0 || !e.isPrimary || e.target.closest('a,button,input,select,textarea,[contenteditable]')) return;
+      swipeStart = { id: e.pointerId, x: e.clientX, y: e.clientY, at: performance.now() };
+    });
+    document.addEventListener('pointerup', e => {
+      if (!swipeStart || swipeStart.id !== e.pointerId) return;
+      const dx = e.clientX - swipeStart.x, dy = e.clientY - swipeStart.y, duration = performance.now() - swipeStart.at;
+      swipeStart = null;
+      if (duration > 900 || dx < 75 || Math.abs(dx) < Math.abs(dy) * 1.7) return;
+      swallowClick = true;
+      navigate('renaissance-perspective.html?v=home-2');
+    });
+    document.addEventListener('pointercancel', () => { swipeStart = null; });
+  }
+  window.addEventListener('pageshow', () => {
+    leaving = false; swallowClick = false; delete document.body.dataset.leave;
+  });
+})();

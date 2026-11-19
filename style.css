@@ -1,0 +1,3781 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600;700&display=swap');
+
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    --stage-width: min(100vw, calc(100svh * 1.77778));
+    --stage-height: min(100svh, calc(100vw * 0.5625));
+    --player-size: clamp(340px, min(720px, calc(78svh - 150px), calc(100vw - 160px)), 720px);
+    --interaction-scale: 1;
+    --hub-title-size: clamp(1.9rem, min(3.8vw, 5.6svh), 3.6rem);
+    --hub-clock-size: min(420px, 44svh, 42vw);
+}
+
+html,
+body {
+    margin: 0;
+    height: 100%;
+    min-height: 100vh;
+    min-height: 100svh;
+    font-family: 'Poppins', sans-serif;
+    color: #111;
+    background: #000;
+    overflow: hidden;
+    transition: background 900ms ease;
+    display: grid;
+    place-items: center;
+}
+
+.cinematic-stage {
+    position: relative;
+    width: var(--stage-width);
+    height: var(--stage-height);
+    container-type: size;
+    overflow: hidden;
+    outline: 500vw solid #000;
+    z-index: 100;
+    background: #000;
+}
+
+.hub-screen,
+.interaction-screen {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: clamp(22px, 4vh, 42px);
+    padding: 0;
+    transition: background-color 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+body.view-interaction .hub-screen {
+    display: none;
+}
+
+body.artwork-opening.view-interaction .hub-screen {
+    display: flex;
+}
+
+.hub-header {
+    width: min(430px, 34vw);
+    margin: 0 clamp(34px, 5vw, 86px) 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    padding: 0;
+    position: relative;
+    z-index: 3;
+    grid-column: 2;
+    grid-row: 1;
+    transform: none;
+}
+
+.hub-header p {
+    margin: 0 0 10px;
+    color: rgba(17, 17, 17, 0.5);
+    font-size: clamp(0.7rem, min(0.85vw, 1.45svh), 0.82rem);
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.hub-header h1 {
+    width: 100%;
+    margin: 0;
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.65rem, min(2.5vw, 4svh), 2.75rem);
+    line-height: 1.06;
+    letter-spacing: 0;
+    text-shadow: none;
+    word-break: keep-all;
+}
+
+.clock-hub {
+    position: relative;
+    width: min(100%, 1120px);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 430px);
+    grid-template-rows: auto auto;
+    align-content: center;
+    align-items: start;
+    gap: clamp(12px, 2vh, 22px);
+    min-height: clamp(560px, calc(100svh - 68px), 1040px);
+    padding-inline: 18px;
+}
+
+.clock-stage {
+    position: relative;
+    width: min(430px, 34vw);
+    height: auto;
+    min-width: 0;
+    min-height: 0;
+    max-width: none;
+    max-height: none;
+    aspect-ratio: auto;
+    display: grid;
+    place-items: start;
+    z-index: 3;
+    grid-column: 2;
+    grid-row: 2;
+    margin: 0 clamp(34px, 5vw, 86px) 0 auto;
+    transform: none;
+}
+
+.clock-face {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: var(--hub-clock-size);
+    height: var(--hub-clock-size);
+    aspect-ratio: 1 / 1;
+    border: 1px solid rgba(17, 17, 17, 0.12);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.clock-face::before,
+.clock-face::after {
+    content: "";
+    position: absolute;
+    inset: 16%;
+    border: 1px solid rgba(17, 17, 17, 0.08);
+    border-radius: 50%;
+}
+
+.clock-face::after {
+    inset: 32%;
+}
+
+.clock-hand {
+    position: absolute;
+    left: 50%;
+    bottom: 50%;
+    width: 3px;
+    transform-origin: bottom center;
+    background: rgba(17, 17, 17, 0.72);
+    border-radius: 999px;
+}
+
+.hour-hand {
+    height: 40%;
+    transform: translateX(-50%) rotate(30deg);
+}
+
+.minute-hand {
+    height: 54%;
+    transform: translateX(-50%) rotate(0deg);
+}
+
+.clock-pin {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #111;
+    transform: translate(-50%, -50%);
+}
+
+.clock-readout {
+    position: relative;
+    width: 100%;
+    min-height: 0;
+    height: auto;
+    aspect-ratio: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 8px;
+    padding: clamp(18px, 2.4vw, 26px) 0 0;
+    border-radius: 0;
+    text-align: left;
+    color: #111;
+    border-top: 1px solid rgba(17, 17, 17, 0.16);
+    background: transparent;
+    box-shadow: none;
+}
+
+.clock-readout span {
+    display: none;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.clock-readout strong {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.85rem, min(5.4vw, 7.4svh), 5.65rem);
+    line-height: 0.84;
+    transform: none;
+    overflow-wrap: normal;
+    word-break: keep-all;
+    letter-spacing: 0;
+}
+
+.clock-readout small {
+    color: rgba(17, 17, 17, 0.54);
+    font-size: clamp(0.82rem, min(1.1vw, 1.7svh), 1.02rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-top: 10px;
+}
+
+.timeline-rail {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    padding: 0;
+    scrollbar-width: none;
+    cursor: grab;
+    touch-action: none;
+    perspective: 1300px;
+    z-index: 1;
+}
+
+.timeline-rail.dragging {
+    cursor: grabbing;
+}
+
+.timeline-rail::-webkit-scrollbar {
+    display: none;
+}
+
+.timeline-track {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    display: block;
+    padding: 0;
+    transform-style: preserve-3d;
+    isolation: isolate;
+}
+
+.timeline-track::before {
+    content: "";
+    position: absolute;
+    left: -10%;
+    right: -10%;
+    top: -6%;
+    bottom: -8%;
+    border: 1px solid rgba(17, 17, 17, 0.1);
+    border-radius: 50%;
+    transform: rotateX(10deg);
+    pointer-events: none;
+}
+
+.timeline-track::after {
+    content: "";
+    position: absolute;
+    left: -4%;
+    right: -4%;
+    top: 6%;
+    bottom: 6%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(17, 17, 17, 0.065), transparent 62%);
+    filter: blur(18px);
+    opacity: 0.65;
+    pointer-events: none;
+}
+
+.timeline-card {
+    --card-scale: 0.86;
+    --card-x: 0px;
+    --card-y: 0px;
+    --card-rotate: 0deg;
+    --card-gray: 0.46;
+    --card-saturation: 0.74;
+    --card-opacity: 1;
+    --feature-color: #ff7a59;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: clamp(420px, 42vw, min(680px, 76svh));
+    height: clamp(330px, 32vw, min(510px, 58svh));
+    padding: clamp(20px, 2.2vw, 28px);
+    border: 0;
+    border-radius: 15px;
+    color: #fff;
+    background: var(--feature-color);
+    box-shadow: 0 26px 70px rgba(17, 17, 17, 0.18);
+    opacity: var(--card-opacity);
+    filter: grayscale(var(--card-gray)) saturate(var(--card-saturation));
+    transform: translate(-50%, -50%) translate3d(var(--card-x), var(--card-y), 0) rotate(var(--card-rotate)) scale(var(--card-scale));
+    transform-origin: center;
+    cursor: pointer;
+    text-align: left;
+    overflow: hidden;
+    transition: box-shadow 280ms ease;
+}
+
+.timeline-card:nth-child(1) { --feature-color: #ff4d5a; }
+.timeline-card:nth-child(2) { --feature-color: #ff7a38; }
+.timeline-card:nth-child(3) { --feature-color: #ffcf3f; }
+.timeline-card:nth-child(4) { --feature-color: #d7f75b; }
+.timeline-card:nth-child(5) { --feature-color: #70e25d; }
+.timeline-card:nth-child(6) { --feature-color: #42e6a4; }
+.timeline-card:nth-child(7) { --feature-color: #41d9f2; }
+.timeline-card:nth-child(8) { --feature-color: #4f8df7; }
+.timeline-card:nth-child(9) { --feature-color: #7357ff; }
+.timeline-card:nth-child(10) { --feature-color: #a954ff; }
+.timeline-card:nth-child(11) { --feature-color: #e65bca; }
+.timeline-card:nth-child(12) { --feature-color: #ff5f8f; }
+
+.timeline-card.active {
+    box-shadow: 0 36px 90px rgba(17, 17, 17, 0.24);
+}
+
+.card-hour {
+    min-width: 42px;
+    min-height: 30px;
+    display: inline-grid;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.14);
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.timeline-card strong {
+    position: absolute;
+    left: clamp(18px, 2vw, 24px);
+    right: clamp(26px, 3vw, 36px);
+    bottom: clamp(64px, 6.5vw, 78px);
+    display: block;
+    max-width: calc(100% - clamp(44px, 5vw, 60px));
+    font-size: clamp(0.66rem, 0.92vw, 0.92rem);
+    line-height: 1.04;
+    letter-spacing: 0;
+    white-space: normal;
+    overflow-wrap: normal;
+    word-break: keep-all;
+    hyphens: none;
+    text-wrap: balance;
+}
+
+.timeline-card small {
+    position: absolute;
+    left: clamp(18px, 2vw, 24px);
+    right: clamp(26px, 3vw, 36px);
+    bottom: clamp(22px, 2.4vw, 30px);
+    color: rgba(255, 255, 255, 0.76);
+    font-size: clamp(0.58rem, 0.72vw, 0.68rem);
+    line-height: 1.25;
+    font-weight: 700;
+    text-transform: uppercase;
+    overflow-wrap: anywhere;
+}
+
+.timeline-card.art-card {
+    background: transparent;
+    background-position: center;
+    background-size: cover;
+    isolation: isolate;
+}
+
+.timeline-card.art-card::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 84%;
+    z-index: -1;
+    background: transparent var(--art-image) center / contain no-repeat;
+}
+
+.timeline-card.surrealism-card,
+.timeline-card.renaissance-card,
+.timeline-card.romanticism-card {
+    --art-image: url('morning.png');
+    --artwork-left: 60%;
+    color: #201915;
+    background: transparent;
+    box-shadow: none;
+    filter: saturate(1.02) contrast(1);
+}
+
+
+.timeline-card.renaissance-card {
+    --art-image: url('아테네 학당.jpg');
+    --artwork-left: 89%;
+}
+
+.timeline-card.romanticism-card {
+    --art-image: url('낭만주의.png');
+}
+
+.timeline-card.surrealism-card,
+.timeline-card.romanticism-card {
+    background-image: var(--art-image) !important;
+    background-size: var(--art-bg-size, auto 85%) !important;
+    background-position: left center !important;
+    background-repeat: no-repeat !important;
+}
+
+.timeline-card.surrealism-card::before,
+.timeline-card.romanticism-card::before {
+    display: none !important;
+}
+
+
+.timeline-card.surrealism-card .card-hour,
+.timeline-card.renaissance-card .card-hour,
+.timeline-card.romanticism-card .card-hour {
+    display: none;
+}
+
+.timeline-card.surrealism-card strong,
+.timeline-card.renaissance-card strong,
+.timeline-card.romanticism-card strong {
+    display: none;
+}
+
+.timeline-card.surrealism-card small,
+.timeline-card.renaissance-card small,
+.timeline-card.romanticism-card small {
+    display: none;
+}
+
+.card-artwork {
+    position: absolute;
+    left: var(--artwork-left, 88%);
+    right: clamp(8px, 1vw, 14px);
+    top: 50%;
+    z-index: 1;
+    width: auto;
+    transform: translateY(-50%);
+    color: rgba(25, 20, 16, 0.86);
+    font-size: clamp(0.72rem, 0.92vw, 1.02rem);
+    line-height: 1.32;
+    font-weight: 700;
+    text-align: left;
+    text-shadow: none;
+}
+
+.card-artwork span,
+.card-artwork em {
+    display: block;
+}
+
+.card-artwork span:first-child {
+    margin-bottom: 8px;
+}
+
+.card-artwork span:last-child {
+    margin-top: 8px;
+}
+
+.card-artwork em {
+    margin: 0;
+    color: #5b2f24;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.32em;
+    font-style: italic;
+    line-height: 1.08;
+}
+
+body.artwork-opening .hub-screen {
+    pointer-events: none;
+}
+
+body.artwork-opening .hub-header,
+body.artwork-opening .clock-stage,
+body.artwork-opening .timeline-track::before,
+body.artwork-opening .timeline-track::after {
+    opacity: 0;
+    transition: opacity 820ms cubic-bezier(0.22, 0.8, 0.22, 1);
+}
+
+body.artwork-opening .timeline-card {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: none !important;
+}
+
+body.artwork-opening .timeline-card.transition-source {
+    opacity: 0 !important;
+    transition: none !important;
+    visibility: hidden !important;
+}
+
+body.artwork-opening.view-interaction .interaction-screen {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: none;
+}
+
+body.artwork-opening.view-interaction .interaction-content {
+    opacity: 0;
+    transform: scale(0.965);
+    filter: blur(14px) saturate(0.86);
+    transition:
+        opacity 820ms cubic-bezier(0.18, 0.86, 0.25, 1),
+        transform 820ms cubic-bezier(0.18, 0.86, 0.25, 1),
+        filter 820ms cubic-bezier(0.18, 0.86, 0.25, 1);
+}
+
+body.artwork-opening.view-interaction.site-revealing .interaction-content {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0) saturate(1);
+}
+
+body.artwork-opening.artwork-arrived.view-interaction .interaction-screen {
+    opacity: 1;
+}
+
+body.artwork-opening.view-interaction:not(.site-revealing) .back-button,
+body.artwork-opening.view-interaction:not(.site-revealing) .pull-chain {
+    opacity: 0 !important;
+    pointer-events: none;
+}
+
+body.artwork-opening.artwork-arrived.view-impressionism .player-shell,
+body.artwork-opening.artwork-arrived.view-impressionism .side-player,
+body.artwork-opening.artwork-arrived.view-impressionism .site-header {
+    animation: surrealRoomReveal 920ms cubic-bezier(0.18, 0.86, 0.25, 1) both;
+}
+
+
+body.artwork-opening.artwork-arrived.view-romanticism .romanticism-frame {
+    animation: stormReveal 1050ms cubic-bezier(0.2, 0.72, 0.22, 1) both;
+}
+
+body.artwork-opening.artwork-arrived.view-renaissance .renaissance-frame {
+    animation: perspectiveReveal 950ms cubic-bezier(0.18, 0.86, 0.25, 1) both;
+}
+
+
+@keyframes surrealRoomReveal {
+    0% { opacity: 0; transform: translateY(18px) scale(0.985); filter: blur(12px) saturate(0.82); }
+    100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0) saturate(1); }
+}
+
+@keyframes impressionistLightReveal {
+    0% { opacity: 0; filter: blur(18px) brightness(1.22) saturate(0.78); transform: scale(1.012); }
+    100% { opacity: 1; filter: blur(0) brightness(1) saturate(1); transform: scale(1); }
+}
+
+@keyframes stormReveal {
+    0% { opacity: 0; filter: brightness(0.45) contrast(1.35) blur(10px); transform: scale(1.035); }
+    55% { opacity: 1; filter: brightness(1.35) contrast(1.15) blur(2px); }
+    100% { opacity: 1; filter: brightness(1) contrast(1) blur(0); transform: scale(1); }
+}
+
+@keyframes perspectiveReveal {
+    0% { opacity: 0; transform: perspective(900px) translateZ(-80px) scale(0.96); filter: blur(10px); }
+    100% { opacity: 1; transform: perspective(900px) translateZ(0) scale(1); filter: blur(0); }
+}
+
+@keyframes opticalReveal {
+    0% { opacity: 0; filter: hue-rotate(18deg) blur(16px) saturate(1.4); transform: scale(1.018); }
+    100% { opacity: 1; filter: hue-rotate(0deg) blur(0) saturate(1); transform: scale(1); }
+}
+
+.artwork-transition-backdrop {
+    position: fixed;
+    left: 0;
+    top: 50%;
+    width: var(--stage-width);
+    height: var(--stage-height);
+    transform: translateY(-50%);
+    z-index: 2147483644;
+    pointer-events: none;
+    opacity: 0;
+    background: transparent;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    transition:
+        opacity 720ms cubic-bezier(0.22, 0.8, 0.22, 1),
+        backdrop-filter 480ms ease,
+        -webkit-backdrop-filter 480ms ease;
+}
+
+.artwork-transition-backdrop.visible {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+}
+
+.artwork-transition-backdrop.leaving {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    transition-duration: 420ms;
+}
+
+.artwork-transition-backdrop.revealing-site {
+    opacity: 0;
+    transition-duration: 700ms;
+}
+
+.artwork-transition-clone {
+    position: fixed;
+    z-index: 2147483645;
+    pointer-events: none;
+    background-color: transparent;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    transform-origin: 50% 50%;
+    border-radius: 0;
+    opacity: 1;
+    filter: none;
+    will-change: left, top, width, height, transform, opacity;
+    transition: none;
+}
+
+img.artwork-transition-clone {
+    display: block;
+    object-fit: contain;
+}
+
+img.artwork-transition-clone.cover-target {
+    object-fit: cover;
+}
+
+.artwork-transition-clone.moving {
+    transition: none;
+}
+
+.artwork-transition-clone.leaving {
+    opacity: 0;
+    transition-delay: 0ms;
+    transition:
+        opacity 420ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+.site-transition {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5000;
+    display: block;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    --transition-color: #8f7b5d;
+    --transition-color-deep: #17130e;
+    background: #000;
+    backdrop-filter: blur(0);
+    -webkit-backdrop-filter: blur(0);
+    transition:
+        opacity 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94),
+        visibility 0s linear 400ms;
+}
+
+.site-transition.show {
+    opacity: 1;
+    visibility: visible;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition:
+        opacity 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94),
+        visibility 0s;
+}
+
+.site-transition.leaving {
+    opacity: 0;
+    visibility: hidden;
+    backdrop-filter: blur(0);
+    -webkit-backdrop-filter: blur(0);
+    transition:
+        opacity 820ms cubic-bezier(0.16, 0.72, 0.24, 1),
+        visibility 0s linear 800ms,
+        backdrop-filter 800ms ease,
+        -webkit-backdrop-filter 800ms ease;
+}
+
+.transition-ripple {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 34cqw;
+    aspect-ratio: 1;
+    border: 1px solid rgba(255, 255, 255, 0.48);
+    border-radius: 50%;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.12);
+    box-shadow:
+        0 0 0 2cqw rgba(255, 255, 255, 0.06),
+        0 0 8cqw rgba(255, 255, 255, 0.16);
+}
+
+.site-transition.show .transition-ripple {
+    animation: sitePortalOpen 620ms cubic-bezier(0.16, 0.76, 0.28, 1) both;
+}
+
+.site-transition.show.leaving .transition-ripple {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(4.2);
+    transition: opacity 520ms ease, transform 820ms cubic-bezier(0.16, 0.72, 0.24, 1);
+}
+
+@keyframes sitePortalOpen {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.12); }
+    38% { opacity: 0.72; }
+    100% { opacity: 0.22; transform: translate(-50%, -50%) scale(3.2); }
+}
+
+.interaction-screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 28px;
+    overflow: hidden;
+}
+
+body.view-interaction .interaction-screen {
+    display: flex;
+}
+
+.interaction-screen {
+    background:
+        linear-gradient(135deg, rgba(176, 224, 230, 0.96), rgba(246, 220, 190, 0.9) 48%, rgba(117, 164, 166, 0.92)),
+        repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.12) 0 1px, transparent 1px 28px);
+}
+
+body.view-interaction.night-background .interaction-screen {
+    background:
+        linear-gradient(135deg, #071021, #20304f 46%, #695e8f 100%),
+        repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.08) 0 1px, transparent 1px 26px);
+}
+
+.interaction-content {
+    width: min(100%, 840px);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(16px, 3vh, 28px);
+    transform: scale(var(--interaction-scale));
+    transform-origin: center;
+}
+
+.impressionism-site {
+    margin: auto;
+}
+
+body.view-impressionism .interaction-screen {
+    background: #000;
+    padding: 0;
+}
+
+body.view-impressionism.night-background .interaction-screen {
+    background: #000;
+}
+
+body.view-impressionism .impressionism-site {
+    display: flex;
+}
+
+body.view-impressionism .impressionism-site {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    gap: 0;
+    transform: none;
+}
+
+
+
+
+
+
+body.view-renaissance .renaissance-site {
+    display: flex;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    gap: 0;
+    transform: none;
+}
+
+body.view-renaissance .interaction-screen {
+    background: #0a0806;
+    padding: 0;
+}
+
+body.view-renaissance .pull-chain {
+    display: none;
+}
+
+.romanticism-site {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    gap: 0;
+    transform: none;
+}
+
+body.view-romanticism .romanticism-site {
+    display: flex;
+}
+
+body.view-romanticism .interaction-screen {
+    background: #02050a;
+    padding: 0;
+}
+
+body.view-romanticism .pull-chain {
+    display: none;
+}
+
+.romanticism-stage {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+}
+
+.romanticism-frame {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: #02050a;
+}
+
+
+
+
+
+
+
+.renaissance-stage {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+}
+
+.renaissance-frame {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: #0a0806;
+}
+
+/* The Renaissance card now introduces the scattered philosopher study; keep
+   the complete School of Athens image out of the composition. */
+.timeline-card.renaissance-card {
+    --art-image: none;
+    background-image: none !important;
+    background-color: var(--poster-paper, #eee8db) !important;
+}
+
+
+
+
+
+.back-button {
+    position: absolute;
+    top: clamp(16px, 2vw, 24px);
+    left: clamp(16px, 2vw, 24px);
+    z-index: 30;
+    width: 40px;
+    height: 40px;
+    min-height: 40px;
+    padding: 0;
+    display: inline-grid;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(8, 12, 18, 0.34);
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    cursor: pointer;
+    transition: transform 180ms ease, background 180ms ease, border-color 180ms ease;
+}
+
+/* The same house as the pages' own Home square (home-button.css). */
+.back-button svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.back-button:hover {
+    transform: translateY(-1px);
+    border-color: rgba(255, 255, 255, 0.42);
+    background: rgba(8, 12, 18, 0.48);
+}
+
+body.view-impressionism .back-button {
+    color: rgba(55, 36, 24, 0.9);
+    border-color: rgba(88, 56, 34, 0.22);
+    background: rgba(255, 232, 199, 0.58);
+    box-shadow: 0 14px 34px rgba(48, 30, 20, 0.18);
+}
+
+body.view-impressionism.night-background .back-button,
+body.view-impressionism.showing-surreal-film .back-button,
+body.view-romanticism .back-button {
+    color: rgba(245, 248, 255, 0.92);
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(5, 9, 18, 0.42);
+}
+
+
+body.view-renaissance .back-button {
+    color: rgba(249, 226, 180, 0.94);
+    border-color: rgba(249, 226, 180, 0.24);
+    background: rgba(44, 27, 13, 0.38);
+}
+
+.site-header {
+    position: relative;
+    z-index: 4;
+    width: min(100%, 920px);
+    min-height: clamp(64px, 8vw, 96px);
+    padding: clamp(28px, 4vw, 54px) clamp(56px, 7vw, 92px) 0;
+    text-align: center;
+    color: #15222d;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+    transition: color 300ms ease;
+}
+
+body.view-interaction.night-background .site-header {
+    color: #f8fafc;
+    text-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+}
+
+.site-header h1 {
+    margin: 0;
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.35rem, 5.4vw, 5.1rem);
+    line-height: 0.92;
+    font-weight: 700;
+    letter-spacing: 0;
+    filter: drop-shadow(0 18px 30px rgba(16, 32, 51, 0.18));
+    transform: none;
+}
+
+.main-container {
+    display: grid;
+    grid-template-columns: clamp(52px, 5vw, 62px) minmax(0, var(--player-size)) clamp(52px, 5vw, 62px);
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    width: min(100%, 840px);
+    margin-top: 0;
+}
+
+.player-shell {
+    justify-self: center;
+    width: min(100%, var(--player-size));
+    padding: clamp(18px, 2.4vw, 30px);
+    border: 1px solid rgba(255, 237, 206, 0.22);
+    border-radius: 8px;
+    background:
+        linear-gradient(90deg, rgba(74, 52, 39, 0.64), rgba(157, 128, 101, 0.38), rgba(49, 34, 31, 0.62)),
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 32px);
+    box-shadow:
+        0 40px 120px rgba(0, 0, 0, 0.36),
+        inset 0 0 90px rgba(40, 20, 12, 0.24);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+}
+
+.album-art-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: visible;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.scene {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 520ms ease;
+}
+
+.surreal-room {
+    width: min(100%, 980px);
+}
+
+body.view-impressionism .site-header,
+body.view-impressionism .side-player,
+body.view-impressionism .room-furniture,
+body.view-impressionism .window-frame,
+body.view-impressionism .curtain,
+body.view-impressionism .window-sill,
+body.view-impressionism .room-shadow,
+body.view-impressionism .album-overlay {
+    display: none !important;
+}
+
+body.view-impressionism .interaction-screen {
+    background: #000;
+}
+
+body.view-impressionism .surreal-room,
+body.view-impressionism .player-shell,
+body.view-impressionism .album-art-container {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    transform: none;
+}
+
+body.view-impressionism .window-reveal {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    background: #000;
+    box-shadow: none;
+    overflow: hidden;
+    transform: none;
+}
+
+body.view-impressionism .window-reveal .scene {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    transform: none;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: none;
+}
+
+.room-window {
+    aspect-ratio: 1.2 / 1;
+    min-height: 0;
+}
+
+.window-reveal {
+    position: absolute;
+    inset: 7% 10% 15%;
+    overflow: hidden;
+    border-radius: 4px;
+    background: #10151c;
+    box-shadow:
+        0 26px 70px rgba(0, 0, 0, 0.5),
+        inset 0 0 0 3px rgba(52, 31, 22, 0.82),
+        inset 0 0 0 14px rgba(148, 103, 67, 0.68);
+}
+
+.window-reveal .scene {
+    inset: 14px;
+    border-radius: 2px;
+    transform: scale(1.04);
+    filter: saturate(0.96) contrast(1.02);
+}
+
+body.view-impressionism.night-background .window-reveal .scene {
+    filter: saturate(0.9) contrast(1.08) brightness(0.84);
+}
+
+.window-frame {
+    position: absolute;
+    inset: 5.5% 8.5% 13.5%;
+    border: clamp(12px, 1.8vw, 22px) solid #5d3826;
+    border-radius: 5px;
+    box-shadow:
+        inset 0 0 0 2px rgba(255, 222, 166, 0.18),
+        0 16px 26px rgba(0, 0, 0, 0.26);
+    pointer-events: none;
+}
+
+.window-frame::before,
+.window-frame::after {
+    content: "";
+    position: absolute;
+    inset: -18px;
+    border: 1px solid rgba(255, 235, 192, 0.12);
+    pointer-events: none;
+}
+
+.muntin {
+    position: absolute;
+    display: block;
+    background: linear-gradient(90deg, #3a2117, #8d5a35, #3f2418);
+    box-shadow: 0 0 18px rgba(0, 0, 0, 0.28);
+}
+
+.muntin-vertical {
+    left: 50%;
+    top: 0;
+    width: clamp(10px, 1.2vw, 16px);
+    height: 100%;
+    transform: translateX(-50%);
+}
+
+.muntin-horizontal {
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: clamp(10px, 1.2vw, 16px);
+    transform: translateY(-50%);
+}
+
+.curtain {
+    position: absolute;
+    top: 0;
+    bottom: 7%;
+    width: 19%;
+    background:
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.08) 0 10px, transparent 10px 24px),
+        linear-gradient(90deg, #5e2632, #9b4b4d 46%, #3b1b29);
+    opacity: 0.92;
+    filter: drop-shadow(0 18px 22px rgba(0, 0, 0, 0.28));
+    pointer-events: none;
+}
+
+.curtain-left {
+    left: 0;
+    clip-path: polygon(0 0, 100% 0, 72% 100%, 10% 100%);
+}
+
+.curtain-right {
+    right: 0;
+    clip-path: polygon(0 0, 100% 0, 90% 100%, 28% 100%);
+}
+
+body.view-impressionism.night-background .curtain {
+    background:
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0 10px, transparent 10px 24px),
+        linear-gradient(90deg, #16152b, #3c2b58 46%, #111421);
+}
+
+.window-sill {
+    position: absolute;
+    left: 5%;
+    right: 5%;
+    bottom: 5%;
+    height: 10%;
+    border-radius: 4px;
+    background: linear-gradient(180deg, #c39b72, #66412b 55%, #2b1912);
+    box-shadow: 0 22px 42px rgba(0, 0, 0, 0.34);
+}
+
+.room-shadow {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(115deg, rgba(255, 222, 150, 0.12), transparent 42%),
+        radial-gradient(circle at 50% 54%, transparent 40%, rgba(15, 7, 4, 0.34) 100%);
+    pointer-events: none;
+}
+
+#morningScene { background-image: url('초현실1.png'); }
+#nightScene { background-image: url('초현실2.png'); }
+#vincentMorningScene { background-image: url('초현실1.png'); }
+#vincentNightScene { background-image: url('초현실2.png'); }
+
+.album-overlay {
+    position: absolute;
+    left: 18px;
+    bottom: 18px;
+    display: inline-flex;
+    align-items: center;
+    padding: 9px 12px;
+    border-radius: 999px;
+    color: #fff;
+    background: rgba(5, 13, 23, 0.46);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+.album-tag {
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0;
+}
+
+.music-player {
+    margin-top: 10px;
+    padding: 14px 16px;
+    border-radius: 8px;
+    background: rgba(43, 27, 20, 0.72);
+    color: #15222d;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.16),
+        0 16px 36px rgba(0, 0, 0, 0.22);
+    color: #f7e5cd;
+}
+
+body.view-interaction.night-background .music-player {
+    background: rgba(8, 10, 20, 0.78);
+    color: #f8fafc;
+}
+
+.now-playing {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 54px;
+    align-items: center;
+    gap: 12px;
+}
+
+.track-title {
+    margin: 0;
+    font-size: clamp(1.18rem, 2.2vw, 1.55rem);
+    line-height: 1.1;
+}
+
+.track-info {
+    margin: 4px 0 0;
+    color: rgba(247, 229, 205, 0.62);
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+body.view-interaction.night-background .track-info {
+    color: rgba(248, 250, 252, 0.62);
+}
+
+.player-button {
+    width: 54px;
+    height: 54px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    color: #fff;
+    background: #20304f;
+    box-shadow: 0 14px 24px rgba(32, 48, 79, 0.24);
+    cursor: pointer;
+    font-size: 1.06rem;
+    transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.player-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 34px rgba(32, 48, 79, 0.36);
+}
+
+.progress-panel {
+    margin-top: 10px;
+}
+
+.time-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    color: rgba(21, 34, 45, 0.58);
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+body.view-interaction.night-background .time-row {
+    color: rgba(248, 250, 252, 0.58);
+}
+
+.progress-track {
+    height: 6px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(21, 34, 45, 0.14);
+}
+
+body.view-interaction.night-background .progress-track {
+    background: rgba(248, 250, 252, 0.14);
+}
+
+.progress-fill {
+    width: 0%;
+    height: 100%;
+    border-radius: inherit;
+    background: #d95f4b;
+    transition: width 180ms linear;
+}
+
+.playlist {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+    padding: 4px;
+    border-radius: 8px;
+    background: rgba(255, 238, 210, 0.09);
+}
+
+.playlist-item {
+    width: 100%;
+    min-height: 36px;
+    display: grid;
+    place-items: center;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 6px;
+    text-align: center;
+    color: inherit;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 700;
+    transition: background 180ms ease, color 180ms ease, box-shadow 180ms ease;
+}
+
+.playlist-item:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+body.view-interaction.night-background .playlist-item:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.playlist-item.active {
+    color: #fff;
+    background: #d95f4b;
+    box-shadow: 0 8px 18px rgba(217, 95, 75, 0.22);
+}
+
+body.view-interaction.night-background .playlist-item.active {
+    color: #071021;
+    background: #8fd3ff;
+    box-shadow: 0 8px 18px rgba(143, 211, 255, 0.18);
+}
+
+.nav-arrow {
+    width: 62px;
+    height: 62px;
+    border: 1px solid rgba(255, 255, 255, 0.26);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    background: rgba(10, 21, 33, 0.36);
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    cursor: pointer;
+    transition: transform 180ms ease, background 180ms ease;
+}
+
+.nav-arrow:hover {
+    transform: scale(1.07);
+    background: rgba(10, 21, 33, 0.5);
+}
+
+.pull-chain {
+    position: absolute;
+    top: 0;
+    right: clamp(92px, 16vw, 220px);
+    width: 34px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+}
+
+body.view-impressionism .pull-chain {
+    top: auto;
+    left: auto;
+    right: clamp(76px, 10vw, 150px);
+    bottom: clamp(88px, 16.5vh, 200px);
+    z-index: 2147483643;
+    color: #fff;
+    width: 34px;
+    height: 184px;
+    perspective: 120px;
+    filter:
+        drop-shadow(0 12px 18px rgba(0, 0, 0, 0.58))
+        drop-shadow(0 2px 2px rgba(255, 255, 255, 0.18));
+    transform: translate(
+        var(--chain-drag-x, 0px),
+        calc(-31px + var(--chain-drag-y, 0px))
+    );
+    overflow: visible;
+}
+
+body.view-impressionism .pull-chain.is-movable {
+    cursor: grab;
+    touch-action: none;
+}
+
+body.view-impressionism .pull-chain.is-movable::after {
+    content: '';
+    position: absolute;
+    inset: -9px -12px;
+    border: 1px dashed rgba(255, 255, 255, 0.64);
+    border-radius: 18px;
+    pointer-events: none;
+}
+
+body.view-impressionism .pull-chain.is-dragging {
+    cursor: grabbing;
+}
+
+body.view-impressionism .chain {
+    position: absolute;
+    left: calc(50% + 4px);
+    top: 0;
+    width: 8px;
+    height: 106px;
+    margin: 0;
+    color: transparent;
+    background:
+        radial-gradient(circle at 38% 34%, rgba(132, 98, 58, 0.96) 0 1.5px, rgba(48, 34, 20, 0.96) 1.8px 3px, transparent 3.3px),
+        radial-gradient(circle at 62% 66%, rgba(18, 13, 8, 0.98) 0 1.4px, rgba(65, 46, 27, 0.95) 1.7px 3px, transparent 3.4px),
+        linear-gradient(90deg, rgba(22, 15, 9, 0.98), rgba(72, 52, 30, 0.98) 42%, rgba(38, 27, 16, 0.98) 72%, rgba(12, 8, 5, 0.94));
+    background-size: 8px 13px, 8px 13px, 100% 100%;
+    background-position: 0 0, 0 6px, 0 0;
+    border-radius: 999px;
+    transform: translateX(-50%) rotateX(10deg);
+    transform-origin: top center;
+    transition: height 180ms cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+body.view-impressionism .handle {
+    position: absolute;
+    left: calc(50% + 4px);
+    top: 99px;
+    width: 28px;
+    height: 28px;
+    margin-top: 0;
+    border-radius: 50%;
+    color: transparent;
+    background:
+        radial-gradient(circle at 35% 28%, rgba(132, 96, 56, 0.82), transparent 24%),
+        radial-gradient(circle at 66% 72%, rgba(10, 7, 4, 0.76), transparent 38%),
+        linear-gradient(135deg, #4c3620 0%, #26180d 48%, #0e0905 100%);
+    box-shadow:
+        inset 3px 4px 7px rgba(230, 165, 90, 0.34),
+        inset -5px -7px 10px rgba(16, 8, 5, 0.58),
+        0 10px 18px rgba(0, 0, 0, 0.5);
+    transform: translateX(-50%) rotateX(12deg);
+    transition: transform 180ms cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+body.view-impressionism .pull-chain.pulled .chain {
+    height: 142px;
+}
+
+body.view-impressionism .pull-chain.pulled .handle {
+    top: 135px;
+    transform: translateX(-50%) rotateX(12deg);
+}
+
+.chain {
+    display: block;
+    width: 4px;
+    height: 135px;
+    margin: 0 auto;
+    color: #243442;
+    background-image: radial-gradient(circle, currentColor 2px, transparent 2px);
+    background-size: 4px 8px;
+    background-repeat: repeat-y;
+    transition: height 120ms ease;
+}
+
+body.view-interaction.night-background .chain {
+    color: #fff;
+}
+
+.handle {
+    display: block;
+    width: 17px;
+    height: 17px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: currentColor;
+    color: #243442;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.24);
+    transform: none;
+    transition: transform 120ms ease, color 200ms ease;
+}
+
+body.view-interaction.night-background .handle {
+    color: #fff;
+}
+
+.pull-chain.pulled .chain {
+    height: 152px;
+}
+
+.pull-chain.pulled .handle {
+    transform: translateY(17px);
+}
+
+.schema-stage {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+}
+
+.schema-panel {
+    position: absolute;
+    z-index: 3;
+    width: 168px;
+    min-height: 132px;
+    padding: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 8px;
+    background: rgba(8, 14, 13, 0.58);
+    color: #eafff6;
+    box-shadow: 0 22px 54px rgba(0, 0, 0, 0.22);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+.schema-index,
+.schema-data {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.schema-index span {
+    width: 42px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    border-radius: 999px;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.schema-panel strong {
+    font-size: clamp(1.1rem, 2vw, 1.7rem);
+    line-height: 1;
+}
+
+.schema-panel small {
+    display: block;
+    color: rgba(234, 255, 246, 0.66);
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.schema-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    border: 0;
+    border-radius: 0;
+    overflow: hidden;
+    background: #000;
+    box-shadow: none;
+}
+
+.schema-canvas canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.schema-frame {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: #000;
+}
+
+
+
+
+
+
+.schema-index {
+    left: 24px;
+    top: 24px;
+}
+
+.schema-data {
+    right: 24px;
+    bottom: 24px;
+}
+
+.schema-grid {
+    position: absolute;
+    inset: 11%;
+    border: 1px solid rgba(26, 41, 39, 0.22);
+}
+
+.schema-block,
+.schema-line,
+.schema-node {
+    position: absolute;
+}
+
+.schema-block {
+    border: 1px solid rgba(26, 41, 39, 0.48);
+    background: rgba(255, 255, 255, 0.54);
+}
+
+.block-a {
+    left: 18%;
+    top: 18%;
+    width: 30%;
+    height: 28%;
+}
+
+.block-b {
+    right: 14%;
+    top: 32%;
+    width: 34%;
+    height: 24%;
+    background: rgba(197, 219, 210, 0.64);
+}
+
+.block-c {
+    left: 31%;
+    bottom: 16%;
+    width: 38%;
+    height: 20%;
+}
+
+.schema-line {
+    height: 2px;
+    background: rgba(26, 41, 39, 0.58);
+    transform-origin: left center;
+}
+
+.line-a {
+    left: 32%;
+    top: 48%;
+    width: 38%;
+    transform: rotate(18deg);
+}
+
+.line-b {
+    left: 38%;
+    top: 63%;
+    width: 28%;
+    transform: rotate(-28deg);
+}
+
+.schema-node {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #1a2927;
+    box-shadow: 0 0 0 8px rgba(26, 41, 39, 0.08);
+}
+
+.node-a {
+    left: 30%;
+    top: 45%;
+}
+
+.node-b {
+    right: 28%;
+    top: 56%;
+}
+
+.node-c {
+    left: 48%;
+    bottom: 24%;
+}
+
+
+
+
+
+
+
+
+
+
+@media (max-width: 900px) {
+    :root {
+        --player-size: clamp(310px, min(620px, calc(76svh - 142px), calc(100vw - 32px)), 620px);
+        --hub-title-size: clamp(2.1rem, min(10vw, 8svh), 4.8rem);
+        --hub-clock-size: min(300px, 34svh, 56vw);
+    }
+
+    .hub-screen {
+        justify-content: flex-start;
+    }
+
+    .clock-hub {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .hub-header,
+    .clock-stage {
+        width: min(560px, 84vw);
+        margin: 0 auto;
+        transform: translateX(0);
+    }
+
+    .clock-stage {
+        margin: 0 auto;
+        place-items: center;
+    }
+
+    .clock-readout {
+        text-align: center;
+        border-top: 0;
+        padding-top: 10px;
+    }
+
+    .timeline-rail {
+        inset: -6vh 0 -8vh;
+    }
+
+    .timeline-card {
+        width: min(82vw, 520px);
+        height: min(62vw, 390px);
+    }
+
+    .interaction-screen {
+        min-height: auto;
+        padding: 56px 16px 18px;
+        justify-content: center;
+    }
+
+    .site-header {
+        width: 100%;
+        padding: 0 42px;
+    }
+
+    .site-header h1 {
+        font-size: clamp(2.2rem, 9vw, 3.5rem);
+    }
+
+    .main-container {
+        grid-template-columns: 1fr;
+        max-width: 680px;
+        width: min(100%, 560px);
+        margin: 0 auto;
+    }
+
+    .nav-arrow {
+        display: none;
+    }
+
+    .pull-chain {
+        right: 72px;
+        z-index: 1;
+    }
+
+    .chain {
+        height: 94px;
+    }
+
+    .pull-chain.pulled .chain {
+        height: 110px;
+    }
+}
+
+@media (max-height: 820px) {
+    :root {
+        --player-size: clamp(300px, min(600px, calc(74svh - 120px), calc(100vw - 160px)), 600px);
+        --interaction-scale: 0.96;
+        --hub-title-size: clamp(2rem, min(5.4vw, 7.4svh), 4.2rem);
+        --hub-clock-size: min(280px, 32svh, 30vw);
+    }
+
+    .hub-screen {
+        padding-block: 20px;
+    }
+
+    .hub-header p {
+        margin-bottom: 8px;
+    }
+
+    .clock-hub {
+        gap: 10px;
+        min-height: calc(100svh - 40px);
+    }
+
+    .timeline-card {
+        width: clamp(300px, 34vw, 480px);
+        height: clamp(235px, 26vw, 360px);
+        padding: 16px;
+    }
+
+    .timeline-card strong {
+        left: 16px;
+        right: 26px;
+        bottom: 58px;
+        max-width: calc(100% - 42px);
+        font-size: clamp(0.58rem, 0.95vw, 0.76rem);
+        white-space: normal;
+        overflow-wrap: normal;
+        word-break: keep-all;
+        hyphens: none;
+        text-wrap: balance;
+    }
+
+    .timeline-card small {
+        left: 16px;
+        right: 24px;
+        bottom: 22px;
+        font-size: 0.95rem;
+    }
+
+    .interaction-screen {
+        padding-top: 54px;
+        padding-bottom: 16px;
+    }
+
+    .site-header h1 {
+        font-size: clamp(2.2rem, 5.2vw, 4.2rem);
+    }
+
+    .main-container {
+        margin-top: 0;
+    }
+
+    .player-shell {
+        padding: 12px;
+        border-radius: 22px;
+    }
+
+    .music-player {
+        margin-top: 8px;
+        padding: 12px;
+        border-radius: 18px;
+    }
+
+    .progress-panel,
+    .playlist {
+        margin-top: 10px;
+    }
+
+    .schema-stage {
+        height: 100%;
+        min-height: 0;
+    }
+
+    .schema-panel {
+        width: 148px;
+        min-height: 112px;
+        padding: 13px;
+    }
+
+
+}
+
+@media (max-width: 900px) and (max-height: 820px) {
+    :root {
+        --player-size: clamp(280px, min(560px, calc(72svh - 112px), calc(100vw - 32px)), 560px);
+        --interaction-scale: 0.94;
+        --hub-title-size: clamp(1.9rem, min(9vw, 7svh), 3.8rem);
+        --hub-clock-size: min(260px, 31svh, 54vw);
+    }
+}
+
+@media (max-height: 680px) {
+    :root {
+        --player-size: clamp(260px, min(500px, calc(70svh - 92px), calc(100vw - 140px)), 500px);
+        --interaction-scale: 0.9;
+        --hub-title-size: clamp(1.7rem, min(4.8vw, 6.8svh), 3.3rem);
+        --hub-clock-size: min(230px, 29svh, 28vw);
+    }
+
+    .back-button {
+        top: 12px;
+        left: 12px;
+    }
+
+    .interaction-screen {
+        padding-top: 42px;
+    }
+
+    .site-header h1 {
+        font-size: clamp(1.9rem, 4.6vw, 3.2rem);
+    }
+
+    .music-player {
+        padding: 10px;
+    }
+
+    .track-title {
+        font-size: clamp(1.15rem, 2.4vw, 1.55rem);
+    }
+
+    .track-info {
+        margin-top: 4px;
+        font-size: 0.95rem;
+    }
+
+    .player-button {
+        width: 52px;
+        height: 52px;
+    }
+
+    .playlist-item {
+        min-height: 34px;
+    }
+
+    .schema-stage {
+        height: 100%;
+        min-height: 0;
+    }
+
+    .schema-panel {
+        width: 132px;
+        min-height: 94px;
+        padding: 11px;
+    }
+
+    .schema-panel strong {
+        font-size: 0.95rem;
+    }
+
+    .schema-panel small {
+        font-size: 0.95rem;
+    }
+
+
+
+
+}
+
+@media (max-width: 520px) {
+    :root {
+        --player-size: clamp(250px, min(500px, calc(70svh - 104px), calc(100vw - 28px)), 500px);
+        --hub-title-size: clamp(1.8rem, min(13vw, 7.5svh), 3.6rem);
+        --hub-clock-size: min(240px, 30svh, 70vw);
+    }
+
+    .hub-screen {
+        padding: 28px 14px;
+        gap: 28px;
+    }
+
+    .timeline-rail {
+        inset: -8vh 0 -10vh;
+    }
+
+    .timeline-card {
+        width: 340px;
+        height: 260px;
+    }
+
+    .interaction-screen {
+        padding-top: 58px;
+    }
+
+    .back-button {
+        top: 16px;
+        left: 16px;
+    }
+
+    .site-header {
+        padding: 0 36px;
+    }
+
+    .site-header h1 {
+        font-size: clamp(2rem, 10vw, 3.1rem);
+        line-height: 0.96;
+    }
+
+    .player-shell {
+        padding: 12px;
+        border-radius: 22px;
+    }
+
+    .album-art-container {
+        border-radius: 18px;
+    }
+
+    .music-player {
+        padding: 10px;
+        border-radius: 18px;
+    }
+
+    .now-playing {
+        grid-template-columns: minmax(0, 1fr) 54px;
+        gap: 12px;
+    }
+
+    .player-button {
+        width: 48px;
+        height: 48px;
+    }
+
+    .track-title {
+        font-size: 1.35rem;
+    }
+
+    .track-info {
+        font-size: 0.95rem;
+    }
+
+    .playlist-item {
+        min-height: 34px;
+        font-size: 0.95rem;
+    }
+}
+
+/* Precision UI pass: shared spacing, hierarchy, and readable controls. */
+:root {
+    --ui-radius: 8px;
+    --ui-hairline: rgba(22, 18, 14, 0.14);
+    --ui-panel: rgba(255, 252, 244, 0.72);
+    --ui-ink: #17130f;
+    --ui-muted: rgba(23, 19, 15, 0.58);
+    --ui-shadow: 0 22px 70px rgba(21, 17, 12, 0.16);
+}
+
+.cinematic-stage {
+    background:
+        radial-gradient(circle at 18% 14%, rgba(210, 174, 104, 0.16), transparent 30%),
+        radial-gradient(circle at 82% 72%, rgba(72, 128, 139, 0.12), transparent 34%),
+        #f7f3ea;
+}
+
+.hub-screen {
+    background:
+        linear-gradient(135deg, rgba(250, 247, 239, 0.98), rgba(232, 226, 214, 0.94)),
+        repeating-linear-gradient(90deg, rgba(26, 22, 18, 0.035) 0 1px, transparent 1px 38px);
+}
+
+.clock-hub {
+    width: min(100%, 1180px);
+    min-height: min(900px, calc(100svh - 52px));
+    padding-inline: clamp(18px, 4vw, 58px);
+}
+
+.hub-header {
+    width: min(450px, 36vw);
+}
+
+.hub-header p {
+    margin-bottom: 12px;
+    color: var(--ui-muted);
+    font-size: clamp(0.68rem, min(0.78vw, 1.2svh), 0.78rem);
+    letter-spacing: 0.08em;
+}
+
+.hub-header h1 {
+    color: var(--ui-ink);
+    font-size: clamp(1.72rem, min(2.55vw, 4.25svh), 2.9rem);
+    line-height: 1.02;
+}
+
+.clock-readout {
+    gap: 10px;
+    border-top-color: var(--ui-hairline);
+}
+
+.clock-readout strong {
+    color: var(--ui-ink);
+    font-size: clamp(3rem, min(5.2vw, 7svh), 5.4rem);
+}
+
+.clock-readout small {
+    color: var(--ui-muted);
+    letter-spacing: 0.08em;
+}
+
+.timeline-card {
+    width: clamp(390px, 39vw, min(620px, 72svh));
+    height: clamp(305px, 29vw, min(460px, 54svh));
+    border-radius: var(--ui-radius);
+    box-shadow: 0 24px 62px rgba(17, 17, 17, 0.16);
+}
+
+.timeline-card.active {
+    box-shadow: 0 34px 82px rgba(17, 17, 17, 0.24);
+}
+
+.timeline-card.surrealism-card,
+.timeline-card.renaissance-card,
+.timeline-card.romanticism-card {
+    border: 0;
+    background-color: transparent !important;
+    box-shadow: none;
+}
+
+.timeline-card.surrealism-card,
+.timeline-card.romanticism-card {
+    background-image: var(--art-image) !important;
+    background-size: var(--art-bg-size, auto 85%) !important;
+    background-position: left center !important;
+    background-repeat: no-repeat !important;
+}
+
+.timeline-card.surrealism-card::after,
+.timeline-card.renaissance-card::after,
+.timeline-card.romanticism-card::after {
+    display: none;
+    content: none;
+}
+
+.card-artwork {
+    right: clamp(10px, 1.4vw, 20px);
+    padding: 0;
+    border-left: 0;
+    color: rgba(23, 19, 15, 0.8);
+    background: transparent;
+    font-size: clamp(0.68rem, 0.82vw, 0.94rem);
+}
+
+.card-artwork em {
+    color: #412217;
+    font-size: 1.22em;
+}
+
+.interaction-screen {
+    padding: clamp(18px, 2.6vw, 30px);
+}
+
+
+.site-header {
+    min-height: auto;
+    padding: clamp(24px, 3.8vw, 48px) clamp(48px, 6vw, 86px) 0;
+}
+
+.site-header h1 {
+    font-size: clamp(2.25rem, 5vw, 4.8rem);
+    line-height: 0.94;
+}
+
+.player-shell,
+.music-player,
+.window-reveal,
+.window-frame,
+.window-sill,
+.album-overlay {
+    border-radius: var(--ui-radius);
+}
+
+.music-player {
+    padding: 13px 14px;
+}
+
+.track-title {
+    line-height: 1.02;
+}
+
+.progress-panel {
+    margin-top: 12px;
+}
+
+.renaissance-stage,
+.romanticism-stage {
+    background: #050505;
+}
+
+.renaissance-frame,
+.romanticism-frame {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+@media (max-width: 900px) {
+    .clock-hub {
+        min-height: calc(100svh - 32px);
+        padding-inline: 16px;
+        gap: 12px;
+    }
+
+    .hub-header,
+    .clock-stage {
+        width: min(560px, 88vw);
+    }
+
+    .hub-header h1 {
+        font-size: clamp(1.78rem, 8.2vw, 3.5rem);
+    }
+
+    .timeline-card {
+        width: min(84vw, 500px);
+        height: min(62vw, 370px);
+    }
+
+    .card-artwork {
+        left: auto;
+        width: min(42%, 180px);
+        font-size: clamp(0.58rem, 2.1vw, 0.76rem);
+    }
+}
+
+@media (max-width: 520px) {
+    .hub-screen {
+        padding: 22px 12px;
+    }
+
+    .timeline-card {
+        width: min(86vw, 340px);
+        height: min(66vw, 260px);
+    }
+
+    .timeline-card.surrealism-card::after,
+    .timeline-card.renaissance-card::after,
+    .timeline-card.romanticism-card::after {
+        display: none;
+        content: none;
+    }
+
+    .card-artwork {
+        display: none;
+    }
+
+    .back-button {
+        top: 12px;
+        left: 12px;
+    }
+}
+
+/* Exhibition poster layer: every hub frame should read as a composed graphic still. */
+.hub-screen {
+    --poster-ink: #101010;
+    --poster-paper: #f4f0e6;
+    --poster-rule: rgba(16, 16, 16, 0.18);
+    --poster-red: #d82e25;
+    --poster-blue: #1757a6;
+    --poster-yellow: #f1bd25;
+    background: var(--poster-paper);
+    color: var(--poster-ink);
+}
+
+.hub-screen::before,
+.hub-screen::after {
+    content: none;
+}
+
+.hub-screen::before {
+    left: 6.25%;
+    top: 8.6%;
+    width: 12.5%;
+    height: 16.8%;
+    background: var(--poster-red);
+    transform: translate3d(0, 0, 0);
+    animation: posterBlockPulse 2.8s steps(2, end) infinite;
+}
+
+.hub-screen::after {
+    right: 6.25%;
+    bottom: 8.6%;
+    width: 18.75%;
+    height: 7.2%;
+    background: var(--poster-blue);
+    box-shadow: -12.5vw -54vh 0 -3.4vw var(--poster-yellow);
+    opacity: 0.92;
+}
+
+.hub-bg-tint {
+    display: none;
+}
+
+.clock-hub {
+    width: 100%;
+    max-width: none;
+    min-height: 100%;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-rows: repeat(8, minmax(0, 1fr));
+    gap: 0;
+    padding: 0;
+}
+
+.hub-header {
+    grid-column: 8 / 12;
+    grid-row: 2 / 4;
+    width: auto;
+    margin: 0;
+    padding: 0;
+    align-self: start;
+    z-index: 4;
+}
+
+.hub-header p {
+    max-width: 31ch;
+    margin: 0 0 16px;
+    color: rgba(16, 16, 16, 0.68);
+    font-size: clamp(0.58rem, min(0.78vw, 1.2svh), 0.82rem);
+    line-height: 1.18;
+    font-weight: 700;
+    letter-spacing: 0;
+}
+
+.hub-header h1 {
+    max-width: 8.5em;
+    color: var(--poster-ink);
+    font-family: 'Poppins', Arial, sans-serif;
+    font-size: clamp(2.4rem, min(5.15vw, 8.1svh), 6.6rem);
+    font-weight: 700;
+    line-height: 0.86;
+    letter-spacing: 0;
+    text-transform: uppercase;
+}
+
+.clock-stage {
+    grid-column: 8 / 12;
+    grid-row: 5 / 8;
+    width: auto;
+    margin: 0;
+    align-self: start;
+    z-index: 4;
+}
+
+.clock-readout {
+    border-top: 2px solid var(--poster-ink);
+    gap: 12px;
+    padding-top: 18px;
+}
+
+.clock-readout strong {
+    max-width: 6.8em;
+    color: var(--poster-ink);
+    font-family: 'Poppins', Arial, sans-serif;
+    font-size: clamp(2.7rem, min(5.7vw, 8.8svh), 7.2rem);
+    font-weight: 700;
+    line-height: 0.78;
+    letter-spacing: 0;
+    text-transform: uppercase;
+}
+
+.clock-readout small {
+    color: rgba(16, 16, 16, 0.64);
+    font-size: clamp(0.72rem, min(1vw, 1.52svh), 0.98rem);
+    letter-spacing: 0;
+}
+
+.timeline-track::before {
+    content: none;
+}
+
+.timeline-track::after {
+    content: none;
+}
+
+.timeline-card {
+    width: clamp(430px, 42vw, min(720px, 76svh));
+    height: clamp(310px, 30vw, min(500px, 55svh));
+    border-radius: 0;
+    box-shadow: inset 0 0 0 1px rgba(16, 16, 16, 0.18);
+    will-change: transform, opacity, filter;
+    transition: transform 300ms cubic-bezier(0.2, 0.72, 0.22, 1), box-shadow 220ms ease, filter 220ms ease, opacity 220ms ease;
+    transform-origin: center center;
+}
+
+.timeline-card.active {
+    box-shadow: inset 0 0 0 2px var(--poster-ink);
+}
+
+@media (hover: hover) {
+    .timeline-card:hover {
+        box-shadow:
+            inset 0 0 0 1px rgba(16, 16, 16, 0.18),
+            24px 18px 0 rgba(16, 16, 16, 0.16) !important;
+    }
+
+    .timeline-card.active:hover {
+        box-shadow:
+            inset 0 0 0 2px var(--poster-ink),
+            24px 18px 0 rgba(16, 16, 16, 0.18) !important;
+    }
+}
+
+.timeline-card.theme-reveal {
+    animation: none;
+}
+
+.timeline-card.theme-reveal::before {
+    animation: none;
+}
+
+.timeline-card.theme-reveal::after {
+    animation: none;
+}
+
+.timeline-card.surrealism-card,
+.timeline-card.renaissance-card,
+.timeline-card.romanticism-card {
+    background-color: var(--poster-paper) !important;
+    background-size: var(--art-bg-size, auto 82%) !important;
+    background-position: 7% center !important;
+    border: 2px solid rgba(16, 16, 16, 0.86);
+    overflow: hidden;
+}
+
+.timeline-card.renaissance-card {
+    background-size: auto 68% !important;
+    background-position: 5% center !important;
+}
+
+.timeline-card.renaissance-card {
+    background-image: var(--art-image) !important;
+    background-size: contain !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+}
+
+.timeline-card.renaissance-card::before {
+    display: none !important;
+}
+
+.timeline-card.surrealism-card::after,
+.timeline-card.renaissance-card::after,
+.timeline-card.romanticism-card::after {
+    content: "";
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(90deg, transparent 0 57%, rgba(244, 240, 230, 0.98) 57% 100%),
+        linear-gradient(0deg, transparent 0 18%, rgba(16, 16, 16, 0.09) 18% calc(18% + 2px), transparent calc(18% + 2px) 100%),
+        linear-gradient(0deg, transparent 0 82%, rgba(16, 16, 16, 0.09) 82% calc(82% + 2px), transparent calc(82% + 2px) 100%);
+}
+
+.timeline-card.renaissance-card::after {
+    background:
+        linear-gradient(0deg, rgba(244, 240, 230, 0.96) 0 17%, transparent 17% 100%),
+        linear-gradient(90deg, transparent 0 50%, rgba(16, 16, 16, 0.08) 50% calc(50% + 2px), transparent calc(50% + 2px) 100%);
+}
+
+.card-artwork {
+    left: 60%;
+    right: 4.5%;
+    top: 50%;
+    z-index: 2;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    min-height: 62%;
+    padding: clamp(10px, 1.2vw, 16px) 0 clamp(8px, 1vw, 14px) clamp(12px, 1.35vw, 18px);
+    border-left: 2px solid rgba(16, 16, 16, 0.78);
+    background: rgba(244, 240, 230, 0.94);
+    color: var(--poster-ink);
+    font-family: 'Poppins', Arial, sans-serif;
+    font-size: clamp(0.62rem, 0.82vw, 0.92rem);
+    line-height: 1.08;
+    font-weight: 700;
+    text-transform: uppercase;
+    overflow: hidden;
+}
+
+.card-artwork span:first-child {
+    margin: 0;
+}
+
+.card-artwork span:last-child {
+    align-self: end;
+    margin: 0;
+    color: rgba(16, 16, 16, 0.58);
+}
+
+.card-artwork em {
+    align-self: center;
+    color: var(--poster-ink);
+    font-family: 'Poppins', Arial, sans-serif;
+    font-size: clamp(1.08rem, 2.05vw, 2.42rem);
+    font-style: normal;
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: 0;
+    text-transform: uppercase;
+    overflow-wrap: anywhere;
+}
+
+.timeline-card.renaissance-card .card-artwork {
+    left: 5%;
+    right: 5%;
+    top: auto;
+    bottom: 4%;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.4fr) auto;
+    grid-template-rows: auto;
+    align-items: end;
+    column-gap: clamp(10px, 1.2vw, 18px);
+    padding: 0;
+    border-left: 0;
+    background: transparent;
+    transform: none;
+}
+
+.timeline-card.renaissance-card .card-artwork span,
+.timeline-card.renaissance-card .card-artwork em {
+    margin: 0;
+}
+
+.timeline-card.renaissance-card .card-artwork em {
+    align-self: end;
+    font-size: clamp(0.9rem, 1.45vw, 1.7rem);
+    line-height: 0.92;
+}
+
+.site-transition.show {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+@keyframes posterBlockPulse {
+    0%, 100% {
+        transform: translate3d(0, 0, 0);
+    }
+
+    50% {
+        transform: translate3d(6.25vw, 0, 0);
+    }
+}
+
+@media (max-width: 900px) {
+    .clock-hub {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        grid-template-rows: repeat(10, minmax(0, 1fr));
+    }
+
+    .hub-header {
+        grid-column: 1 / 7;
+        grid-row: 1 / 3;
+        padding: 22px 18px 0;
+    }
+
+    .hub-header h1 {
+        max-width: 8.2em;
+        font-size: clamp(2.15rem, 9.4vw, 4.35rem);
+    }
+
+    .clock-stage {
+        grid-column: 1 / 7;
+        grid-row: 8 / 11;
+        padding: 0 18px 20px;
+    }
+
+    .clock-readout strong {
+        max-width: 7.3em;
+        font-size: clamp(2.4rem, 11vw, 4.9rem);
+    }
+
+    .timeline-card {
+        width: min(82vw, 520px);
+        height: min(58vw, 370px);
+    }
+
+    .card-artwork {
+        left: 59%;
+        right: 4.5%;
+        min-height: 62%;
+        padding-left: 12px;
+        font-size: clamp(0.54rem, 2vw, 0.72rem);
+    }
+
+    .card-artwork em {
+        font-size: clamp(1.05rem, 5vw, 2rem);
+    }
+}
+
+@media (max-width: 520px) {
+    .hub-header p {
+        max-width: 26ch;
+    }
+
+    .timeline-card {
+        width: min(86vw, 350px);
+        height: min(68vw, 276px);
+    }
+
+    .timeline-card.surrealism-card,
+    .timeline-card.renaissance-card,
+    .timeline-card.romanticism-card {
+        background-position: 50% 34% !important;
+        background-size: auto 58% !important;
+    }
+
+    .timeline-card.surrealism-card::after,
+    .timeline-card.renaissance-card::after,
+    .timeline-card.romanticism-card::after {
+        background:
+            linear-gradient(0deg, rgba(244, 240, 230, 0.96) 0 42%, transparent 42% 100%),
+            linear-gradient(90deg, transparent 0 50%, rgba(16, 16, 16, 0.12) 50% calc(50% + 2px), transparent calc(50% + 2px) 100%);
+    }
+
+    .card-artwork {
+        left: 7%;
+        right: 7%;
+        top: auto;
+        bottom: 6.5%;
+        min-height: 31%;
+        padding: 9px 0 8px 12px;
+        border-left-width: 2px;
+        background: rgba(244, 240, 230, 0.97);
+        transform: none;
+    }
+
+    .card-artwork em {
+        font-size: clamp(1rem, 7vw, 1.75rem);
+    }
+}
+
+.timeline-card.renaissance-card {
+    background-image: var(--art-image) !important;
+    background-size: contain !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+}
+
+.timeline-card.renaissance-card::before {
+    display: none !important;
+}
+
+.timeline-card.renaissance-card::after {
+    background:
+        linear-gradient(0deg, rgba(244, 240, 230, 0.96) 0 16%, transparent 16% 100%),
+        linear-gradient(90deg, transparent 0 50%, rgba(16, 16, 16, 0.08) 50% calc(50% + 2px), transparent calc(50% + 2px) 100%) !important;
+}
+
+.timeline-card.renaissance-card .card-artwork {
+    left: 5%;
+    right: 5%;
+    top: auto;
+    bottom: 4%;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.4fr) auto;
+    grid-template-rows: auto;
+    align-items: end;
+    column-gap: clamp(8px, 1.2vw, 18px);
+    padding: 0;
+    border-left: 0;
+    background: transparent;
+    transform: none;
+    font-size: clamp(0.48rem, 0.78vw, 0.86rem);
+}
+
+.timeline-card.renaissance-card .card-artwork span,
+.timeline-card.renaissance-card .card-artwork em {
+    margin: 0;
+}
+
+.timeline-card.renaissance-card .card-artwork em {
+    align-self: end;
+    font-size: clamp(0.78rem, 1.38vw, 1.55rem);
+    line-height: 0.92;
+}
+
+/* Final main-card composition: image left, metadata right, with fixed inner margins. */
+.timeline-card.art-card {
+    --card-pad-x: clamp(18px, 2.4vw, 34px);
+    --card-pad-y: clamp(16px, 2vw, 28px);
+    background-color: var(--poster-paper) !important;
+    background-image: none !important;
+}
+
+.timeline-card.surrealism-card::before,
+.timeline-card.renaissance-card::before,
+.timeline-card.romanticism-card::before {
+    display: block !important;
+    content: "";
+    position: absolute;
+    left: var(--card-pad-x);
+    top: var(--card-pad-y);
+    bottom: var(--card-pad-y);
+    width: calc(58% - var(--card-pad-x));
+    z-index: 1;
+    background: transparent var(--art-image) center center / contain no-repeat;
+    transform: translate3d(var(--art-pan-x, 0), var(--art-pan-y, 0), 0) scale(var(--art-scale, 1));
+    transform-origin: center center;
+    will-change: transform, opacity, clip-path, filter;
+    transition: transform 260ms cubic-bezier(0.2, 0.72, 0.22, 1);
+}
+
+.timeline-card.surrealism-card::after,
+.timeline-card.renaissance-card::after,
+.timeline-card.romanticism-card::after {
+    display: block !important;
+    content: "";
+    position: absolute;
+    inset: var(--card-pad-y) var(--card-pad-x) var(--card-pad-y) auto;
+    width: calc(36% - var(--card-pad-x));
+    z-index: 0;
+    border-left: 2px solid rgba(16, 16, 16, 0.82);
+    background: rgba(244, 240, 230, 0.98) !important;
+}
+
+.timeline-card.surrealism-card .card-artwork,
+.timeline-card.renaissance-card .card-artwork,
+.timeline-card.romanticism-card .card-artwork {
+    left: 64%;
+    right: var(--card-pad-x);
+    top: var(--card-pad-y);
+    bottom: var(--card-pad-y);
+    min-height: 0;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    align-items: stretch;
+    padding: 0 0 0 clamp(14px, 1.7vw, 24px);
+    border-left: 0;
+    background: transparent;
+    transform: none;
+    z-index: 10;
+    color: var(--poster-ink);
+    font-size: clamp(0.64rem, 0.86vw, 0.96rem);
+    line-height: 1.08;
+    overflow: visible;
+}
+
+.timeline-card.surrealism-card .card-artwork *,
+.timeline-card.renaissance-card .card-artwork *,
+.timeline-card.romanticism-card .card-artwork * {
+    position: relative;
+    z-index: 11;
+    transform: none;
+    filter: none;
+    text-shadow: none;
+}
+
+.timeline-card.surrealism-card .card-artwork span:first-child,
+.timeline-card.renaissance-card .card-artwork span:first-child,
+.timeline-card.romanticism-card .card-artwork span:first-child {
+    align-self: start;
+    margin: 0;
+}
+
+.timeline-card.surrealism-card .card-artwork em,
+.timeline-card.renaissance-card .card-artwork em,
+.timeline-card.romanticism-card .card-artwork em {
+    align-self: center;
+    margin: 0;
+    font-size: clamp(1.15rem, 2.15vw, 2.7rem);
+    line-height: 0.9;
+    overflow-wrap: normal;
+    word-break: keep-all;
+    text-wrap: balance;
+}
+
+.timeline-card.renaissance-card .card-artwork em {
+    max-width: 9.5em;
+    font-size: clamp(1.05rem, 1.75vw, 2.15rem);
+    line-height: 0.96;
+    overflow-wrap: normal;
+    word-break: keep-all;
+    text-wrap: balance;
+}
+
+.timeline-card.surrealism-card .card-artwork span:last-child,
+.timeline-card.renaissance-card .card-artwork span:last-child,
+.timeline-card.romanticism-card .card-artwork span:last-child {
+    align-self: end;
+    margin: 0;
+    color: rgba(16, 16, 16, 0.62);
+}
+
+@media (max-width: 520px) {
+    .timeline-card.art-card {
+        --card-pad-x: 14px;
+        --card-pad-y: 12px;
+    }
+
+    .timeline-card.surrealism-card::before,
+    .timeline-card.renaissance-card::before,
+    .timeline-card.romanticism-card::before {
+        left: var(--card-pad-x);
+        right: var(--card-pad-x);
+        top: var(--card-pad-y);
+        bottom: 38%;
+        width: auto;
+    }
+
+    .timeline-card.surrealism-card::after,
+    .timeline-card.renaissance-card::after,
+    .timeline-card.romanticism-card::after {
+        inset: auto var(--card-pad-x) var(--card-pad-y) var(--card-pad-x);
+        width: auto;
+        height: 31%;
+        border-left: 0;
+        border-top: 2px solid rgba(16, 16, 16, 0.82);
+    }
+
+    .timeline-card.surrealism-card .card-artwork,
+    .timeline-card.renaissance-card .card-artwork,
+    .timeline-card.romanticism-card .card-artwork {
+        left: var(--card-pad-x);
+        right: var(--card-pad-x);
+        top: auto;
+        bottom: var(--card-pad-y);
+        height: 31%;
+        padding: 8px 0 0;
+        font-size: clamp(0.5rem, 2vw, 0.68rem);
+    }
+
+    .timeline-card.surrealism-card .card-artwork em,
+    .timeline-card.renaissance-card .card-artwork em,
+    .timeline-card.romanticism-card .card-artwork em {
+        font-size: clamp(0.86rem, 5.4vw, 1.45rem);
+    }
+}
+
+.timeline-card.renaissance-card .card-artwork {
+    left: 64% !important;
+    right: var(--card-pad-x) !important;
+    top: var(--card-pad-y) !important;
+    bottom: var(--card-pad-y) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    display: grid !important;
+    grid-template-columns: none !important;
+    grid-template-rows: auto minmax(0, 1fr) auto !important;
+    align-items: stretch !important;
+    column-gap: 0 !important;
+    padding: 0 0 0 clamp(14px, 1.7vw, 24px) !important;
+    border-left: 0 !important;
+    background: transparent !important;
+    transform: none !important;
+    font-size: clamp(0.64rem, 0.86vw, 0.96rem) !important;
+    overflow: visible !important;
+    z-index: 10 !important;
+}
+
+.timeline-card.renaissance-card .card-artwork span:first-child {
+    align-self: start !important;
+}
+
+.timeline-card.renaissance-card .card-artwork em {
+    align-self: center !important;
+    max-width: 8.2em;
+    font-size: clamp(1.02rem, 1.68vw, 2.05rem) !important;
+    line-height: 0.96 !important;
+}
+
+.timeline-card.renaissance-card .card-artwork span:last-child {
+    align-self: end !important;
+}
+
+.timeline-card.surrealism-card .card-artwork,
+.timeline-card.renaissance-card .card-artwork,
+.timeline-card.romanticism-card .card-artwork,
+.timeline-card.surrealism-card .card-artwork *,
+.timeline-card.renaissance-card .card-artwork *,
+.timeline-card.romanticism-card .card-artwork * {
+    white-space: normal !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+    hyphens: none !important;
+}
+
+@media (max-width: 520px) {
+    .timeline-card.renaissance-card .card-artwork {
+        left: var(--card-pad-x) !important;
+        right: var(--card-pad-x) !important;
+        top: auto !important;
+        bottom: var(--card-pad-y) !important;
+        height: 31% !important;
+        padding: 8px 0 0 !important;
+        font-size: clamp(0.5rem, 2vw, 0.68rem) !important;
+    }
+
+    .timeline-card.renaissance-card .card-artwork em {
+        max-width: none;
+        font-size: clamp(0.82rem, 5vw, 1.32rem) !important;
+    }
+}
+
+.scroll-aperture {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    opacity: 0;
+}
+
+.scroll-aperture::before,
+.scroll-aperture::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+    opacity: 0;
+    will-change: transform, opacity, clip-path;
+}
+
+.scroll-aperture::before {
+    left: 5.9%;
+    top: 13.5%;
+    width: 50%;
+    height: 70%;
+    background:
+        repeating-linear-gradient(90deg, var(--switch-color-a, #d82e25) 0 9%, transparent 9% 13%, var(--switch-color-b, #1757a6) 13% 22%, transparent 22% 30%);
+    mix-blend-mode: multiply;
+    clip-path: inset(0 100% 0 0);
+}
+
+.scroll-aperture::after {
+    left: 50%;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    background: rgba(16, 16, 16, 0.72);
+    box-shadow:
+        5.8vw 0 0 rgba(16, 16, 16, 0.18),
+        11.6vw 0 0 rgba(16, 16, 16, 0.12),
+        -5.8vw 0 0 rgba(16, 16, 16, 0.18),
+        -11.6vw 0 0 rgba(16, 16, 16, 0.12);
+    transform: scaleY(0);
+    transform-origin: center;
+}
+
+.hub-screen.subject-switching .scroll-aperture {
+    opacity: 1;
+}
+
+.hub-screen.subject-switching .scroll-aperture::before {
+    animation: apertureSweepNext 620ms cubic-bezier(0.18, 0.86, 0.25, 1) both;
+}
+
+.hub-screen.subject-switching[data-switch-direction="prev"] .scroll-aperture::before {
+    animation-name: apertureSweepPrev;
+}
+
+.hub-screen.subject-switching .scroll-aperture::after {
+    animation: apertureRules 620ms cubic-bezier(0.18, 0.86, 0.25, 1) both;
+}
+
+.timeline-card.focus-hit {
+    animation: cardFocusHit 680ms cubic-bezier(0.18, 0.86, 0.25, 1) both;
+}
+
+.timeline-card.focus-hit::before {
+    animation: artworkProofReveal 820ms cubic-bezier(0.16, 0.9, 0.24, 1) both;
+}
+
+.timeline-card.focus-hit::after {
+    animation: metadataPlateHold 760ms cubic-bezier(0.16, 0.9, 0.24, 1) both;
+}
+
+/* Text safety layer: metadata must never be covered, clipped, or distorted. */
+.timeline-card.surrealism-card::after,
+.timeline-card.renaissance-card::after,
+.timeline-card.romanticism-card::after {
+    inset: var(--card-pad-y) var(--card-pad-x) var(--card-pad-y) 60% !important;
+    width: auto !important;
+    z-index: 2 !important;
+    border-left: 2px solid rgba(16, 16, 16, 0.82) !important;
+    background: var(--poster-paper) !important;
+}
+
+.timeline-card.surrealism-card::before,
+.timeline-card.renaissance-card::before,
+.timeline-card.romanticism-card::before {
+    z-index: 1 !important;
+}
+
+.timeline-card.surrealism-card .card-artwork,
+.timeline-card.renaissance-card .card-artwork,
+.timeline-card.romanticism-card .card-artwork {
+    left: calc(60% + clamp(12px, 1.5vw, 22px)) !important;
+    right: calc(var(--card-pad-x) + clamp(10px, 1.2vw, 18px)) !important;
+    top: calc(var(--card-pad-y) + clamp(10px, 1.2vw, 18px)) !important;
+    bottom: calc(var(--card-pad-y) + clamp(10px, 1.2vw, 18px)) !important;
+    height: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    background: var(--poster-paper) !important;
+    box-shadow: 0 0 0 clamp(8px, 1vw, 14px) var(--poster-paper) !important;
+    overflow: visible !important;
+    z-index: 50 !important;
+    transform: none !important;
+    filter: none !important;
+}
+
+.timeline-card.surrealism-card .card-artwork *,
+.timeline-card.renaissance-card .card-artwork *,
+.timeline-card.romanticism-card .card-artwork * {
+    max-width: 100% !important;
+    color: var(--poster-ink) !important;
+    background: var(--poster-paper) !important;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    padding-inline: 0.04em;
+    position: relative !important;
+    z-index: 51 !important;
+    transform: none !important;
+    filter: none !important;
+    opacity: 1 !important;
+    white-space: normal !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+    hyphens: none !important;
+}
+
+.timeline-card.surrealism-card .card-artwork em,
+.timeline-card.renaissance-card .card-artwork em,
+.timeline-card.romanticism-card .card-artwork em {
+    font-size: clamp(0.98rem, 1.72vw, 2.05rem) !important;
+    line-height: 1 !important;
+}
+
+@media (max-width: 520px) {
+    .timeline-card.surrealism-card::after,
+    .timeline-card.renaissance-card::after,
+    .timeline-card.romanticism-card::after {
+        inset: auto var(--card-pad-x) var(--card-pad-y) var(--card-pad-x) !important;
+        height: 34% !important;
+        border-left: 0 !important;
+        border-top: 2px solid rgba(16, 16, 16, 0.82) !important;
+    }
+
+    .timeline-card.surrealism-card .card-artwork,
+    .timeline-card.renaissance-card .card-artwork,
+    .timeline-card.romanticism-card .card-artwork {
+        left: calc(var(--card-pad-x) + 8px) !important;
+        right: calc(var(--card-pad-x) + 8px) !important;
+        top: auto !important;
+        bottom: calc(var(--card-pad-y) + 8px) !important;
+        height: calc(34% - 16px) !important;
+        box-shadow: 0 0 0 8px var(--poster-paper) !important;
+    }
+
+    .timeline-card.surrealism-card .card-artwork em,
+    .timeline-card.renaissance-card .card-artwork em,
+    .timeline-card.romanticism-card .card-artwork em {
+        font-size: clamp(0.78rem, 4.6vw, 1.18rem) !important;
+        line-height: 1.02 !important;
+    }
+}
+
+@keyframes apertureSweepNext {
+    0% {
+        opacity: 0;
+        transform: translateX(-11%) scaleX(0.72);
+        clip-path: inset(0 100% 0 0);
+    }
+
+    36% {
+        opacity: 0.3;
+        transform: translateX(0) scaleX(1);
+        clip-path: inset(0 0 0 0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateX(12%) scaleX(0.9);
+        clip-path: inset(0 0 0 100%);
+    }
+}
+
+@keyframes apertureSweepPrev {
+    0% {
+        opacity: 0;
+        transform: translateX(11%) scaleX(0.72);
+        clip-path: inset(0 0 0 100%);
+    }
+
+    36% {
+        opacity: 0.3;
+        transform: translateX(0) scaleX(1);
+        clip-path: inset(0 0 0 0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateX(-12%) scaleX(0.9);
+        clip-path: inset(0 100% 0 0);
+    }
+}
+
+@keyframes apertureRules {
+    0% {
+        opacity: 0;
+        transform: scaleY(0);
+    }
+
+    28% {
+        opacity: 0.5;
+        transform: scaleY(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scaleY(0.2);
+    }
+}
+
+@keyframes cardFocusHit {
+    0% {
+        box-shadow: 0 0 0 2px var(--poster-ink), 34px 24px 0 rgba(16, 16, 16, 0.16);
+    }
+
+    42% {
+        box-shadow:
+            0 0 0 2px var(--poster-ink),
+            0 0 0 12px rgba(244, 240, 230, 0.72),
+            38px 28px 0 rgba(16, 16, 16, 0.2);
+    }
+
+    100% {
+        box-shadow: 0 0 0 2px var(--poster-ink), 34px 24px 0 rgba(16, 16, 16, 0.16);
+    }
+}
+
+@keyframes artworkProofReveal {
+    0% {
+        opacity: 0.1;
+        transform: translateX(-22px) scale(0.985);
+        clip-path: polygon(0 0, 8% 0, 8% 100%, 0 100%);
+        filter: saturate(0.7) contrast(1.08);
+    }
+
+    18% {
+        opacity: 0.65;
+        clip-path: polygon(0 0, 18% 0, 18% 100%, 0 100%, 28% 0, 42% 0, 42% 100%, 28% 100%);
+    }
+
+    45% {
+        opacity: 1;
+        transform: translateX(0) scale(1.006);
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+        filter: saturate(1.08) contrast(1.02);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+        filter: saturate(1) contrast(1);
+    }
+}
+
+@keyframes metadataPlateHold {
+    0%, 100% {
+        background: var(--poster-paper);
+        box-shadow: none;
+    }
+
+    42% {
+        background: var(--poster-paper);
+        box-shadow: -10px 0 0 var(--poster-paper), 0 0 0 1px rgba(16, 16, 16, 0.08);
+    }
+}
+
+@keyframes revealFrame {
+    0% {
+        filter: saturate(0.92) contrast(1.04);
+        box-shadow: inset 0 0 0 2px var(--poster-ink);
+    }
+
+    46% {
+        filter: saturate(1.02) contrast(1.01);
+        box-shadow: inset 0 0 0 2px var(--poster-ink);
+    }
+
+    100% {
+        filter: saturate(1) contrast(1);
+        box-shadow: inset 0 0 0 2px var(--poster-ink);
+    }
+}
+
+@keyframes revealIris {
+    0% {
+        opacity: 0.18;
+        clip-path: ellipse(16% 34% at 50% 50%);
+        transform: scale(0.985);
+        filter: blur(12px) saturate(0.72);
+    }
+
+    42% {
+        opacity: 1;
+        clip-path: ellipse(92% 96% at 50% 50%);
+        transform: scale(1.01);
+        filter: blur(0) saturate(1.05);
+    }
+
+    100% {
+        opacity: 1;
+        clip-path: ellipse(100% 100% at 50% 50%);
+        transform: scale(1);
+        filter: blur(0) saturate(1);
+    }
+}
+
+@keyframes revealPanel {
+    0% {
+        opacity: 0.88;
+        box-shadow: inset 0 0 0 0 rgba(244, 240, 230, 0);
+    }
+
+    44% {
+        opacity: 1;
+        box-shadow: inset 0 0 0 0 rgba(244, 240, 230, 0);
+    }
+
+    100% {
+        opacity: 1;
+        box-shadow: inset 0 0 0 0 rgba(244, 240, 230, 0);
+    }
+}
+
+.scroll-aperture {
+    display: none !important;
+}
+
+.hub-screen.subject-switching .scroll-aperture,
+.timeline-card.focus-hit,
+.timeline-card.focus-hit::before,
+.timeline-card.focus-hit::after {
+    animation: none !important;
+}
+
+.feature-readout {
+    --movement-title-size: 4.6cqw;
+}
+
+/* The pager under the movement card: which of the three is in front, and a step up or down the orbit.
+   Its first chevron lines up with the card's left edge (the card is centred at 25% of the stage, 42cqw wide; the
+   40px button holds a 20px icon, hence the 10px) and it sits just below the card. */
+.hub-pager {
+    position: absolute;
+    left: calc(25% - 21cqw - 10px);
+    top: calc(50% + 16.6cqw);
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    gap: 0.6cqw;
+    color: var(--poster-ink, #101010);
+    font-size: 1.1cqw;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    transition: opacity 820ms cubic-bezier(0.22, 0.8, 0.22, 1);
+}
+
+.hub-pager-count {
+    min-width: 5.4em;
+    text-align: center;
+    color: rgba(17, 17, 17, 0.5);
+}
+
+.hub-pager-count b {
+    color: var(--poster-ink, #101010);
+}
+
+.hub-pager-step {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    min-height: 40px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+    transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.hub-pager-step svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.hub-pager-step:hover {
+    opacity: 0.6;
+}
+
+.hub-pager-step:focus-visible {
+    outline: 2px solid var(--poster-ink, #101010);
+    outline-offset: 2px;
+}
+
+body.artwork-opening .hub-pager,
+body:not(.view-hub) .hub-pager {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/*
+ * Keep the exhibition hub as one proportional 16:9 composition.
+ * Container units follow the cinematic stage, unlike vw/svh which follow the
+ * browser window (including the letterboxed area around the stage).
+ */
+.hub-screen {
+    gap: 2.6cqh;
+    padding: 0;
+    justify-content: center;
+}
+
+.hub-screen .clock-hub {
+    display: grid;
+    width: 100%;
+    min-height: 100%;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-rows: repeat(8, minmax(0, 1fr));
+    align-content: center;
+    align-items: start;
+    gap: 0;
+    padding: 0;
+}
+
+/* The title block (header + movement readout) is lowered 4.7cqw so its middle is level with the middle of the card. */
+.hub-screen .hub-header {
+    grid-column: 8 / 12;
+    grid-row: 2 / 4;
+    width: auto;
+    margin: 0;
+    padding: 0;
+    transform: translate(-4.6cqw, 4.7cqw);
+}
+
+.hub-screen .hub-header p {
+    max-width: none;
+    margin-bottom: 1cqw;
+    font-size: 1.1cqw;
+    white-space: nowrap;
+}
+
+.hub-screen .hub-header h1 {
+    max-width: 8.5em;
+    font-size: 5.15cqw;
+}
+
+.hub-screen .clock-stage {
+    grid-column: 8 / 12;
+    grid-row: 5 / 8;
+    width: auto;
+    margin: 0;
+    padding: 0;
+    place-items: start;
+    transform: translate(-4.6cqw, 4.7cqw);
+}
+
+.hub-screen .clock-readout {
+    gap: 0.75cqw;
+    padding-top: 1.125cqw;
+    border-top: 0.125cqw solid var(--poster-ink);
+    text-align: left;
+}
+
+.hub-screen .timeline-rail {
+    inset: 0;
+}
+
+.hub-screen .clock-readout strong {
+    max-width: 6.8em;
+    font-size: var(--movement-title-size, 5.7cqw);
+}
+
+.hub-screen .clock-readout small {
+    margin-top: 0.625cqw;
+    font-size: 0.82cqw;
+}
+
+.hub-screen .timeline-card {
+    --card-pad-x: 2.125cqw;
+    --card-pad-y: 1.75cqw;
+    width: 42cqw;
+    height: 30cqw;
+    padding: 1.75cqw;
+    border-width: 0.125cqw;
+}
+
+.hub-screen .timeline-card .card-artwork {
+    left: calc(60% + 1.375cqw) !important;
+    right: calc(var(--card-pad-x) + 1.125cqw) !important;
+    top: calc(var(--card-pad-y) + 1.125cqw) !important;
+    bottom: calc(var(--card-pad-y) + 1.125cqw) !important;
+    padding: 0 !important;
+    font-size: 1.1cqw !important;
+    box-shadow: 0 0 0 0.875cqw var(--poster-paper) !important;
+}
+
+.hub-screen .timeline-card .card-artwork em {
+    font-size: 1.68cqw !important;
+}
+
+.feature-readout strong {
+    min-height: calc(var(--movement-title-size) * 1.75);
+    display: flex;
+    align-items: flex-start;
+    font-size: var(--movement-title-size) !important;
+    background: transparent;
+    box-shadow: none;
+}
+
+.feature-readout small {
+    font-size: 1.2cqw !important;
+    line-height: 0.9;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: normal;
+    word-break: keep-all;
+}
+
+.hub-screen[data-movement="renaissance"] .feature-readout strong {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-style: normal;
+    line-height: 0.82;
+    text-transform: uppercase;
+}
+
+.hub-screen[data-movement="surrealism"] .feature-readout strong {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 700;
+    font-style: italic;
+    line-height: 0.86;
+    text-transform: uppercase;
+}
+
+.hub-screen[data-movement="impressionism"] .feature-readout strong {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: calc(var(--movement-title-size) * 0.9) !important;
+    font-weight: 700;
+    font-style: italic;
+    line-height: 0.86;
+    text-transform: uppercase;
+}
+
+.hub-screen[data-movement="romanticism"] .feature-readout strong {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-style: normal;
+    line-height: 0.8;
+    text-transform: uppercase;
+}
+
+/* The complete painting belongs to the main hub card. The internal page uses
+   separate philosopher cutouts and does not load this artwork. */
+.timeline-card.renaissance-card::before,
+.timeline-card.renaissance-card::after {
+    display: block !important;
+}
+.timeline-card.renaissance-card {
+    background-image: url('아테네 학당.jpg') !important;
+    background-size: 54% auto !important;
+    background-position: 8% center !important;
+    background-repeat: no-repeat !important;
+}
+
+/* Local, on-device hand tracking controls */
+.hand-tracker {
+    display: none;
+}
+
+body:not(.view-hub) .hand-tracker-toggle {
+    display: none;
+}
+
+.hand-cursor {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 2147483647;
+    width: 38px;
+    height: 38px;
+    border: 2.5px solid #fff;
+    border-radius: 50%;
+    background: rgba(20, 20, 20, 0.18);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.48), 0 2px 8px rgba(0, 0, 0, 0.32);
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    transition: width 140ms ease, height 140ms ease, border-color 140ms ease,
+        background 140ms ease, box-shadow 180ms ease, opacity 160ms ease;
+}
+
+.hand-cursor.is-visible { opacity: 1; }
+
+.hand-cursor.has-target {
+    border-color: #d7b57c;
+    box-shadow:
+        0 0 0 1px rgba(45, 36, 24, 0.45),
+        0 0 0 7px rgba(215, 181, 124, 0.16),
+        0 3px 10px rgba(0, 0, 0, 0.26);
+}
+
+.hand-cursor.is-pinching,
+.hand-cursor.is-committed {
+    width: 28px;
+    height: 28px;
+    border-color: #fff8ea;
+    background: rgba(181, 145, 91, 0.82);
+    box-shadow:
+        0 0 0 1px rgba(45, 36, 24, 0.52),
+        0 0 0 6px rgba(213, 185, 137, 0.2),
+        0 3px 10px rgba(0, 0, 0, 0.28);
+}
+
+.hand-cursor.is-dragging {
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
+    border-color: #fff7e8;
+    background: rgba(145, 110, 67, 0.9);
+    box-shadow:
+        0 0 0 1px rgba(30, 24, 17, 0.6),
+        0 0 0 8px rgba(215, 181, 124, 0.13);
+}
+
+.hand-cursor.is-uncertain {
+    border-style: dashed;
+    opacity: 0.42;
+    animation: handTrackingUncertain 620ms ease-in-out infinite alternate;
+}
+
+@keyframes handTrackingUncertain {
+    to { opacity: 0.18; }
+}
+
+.hand-tracker-toggle {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    min-width: 104px;
+    min-height: 38px;
+    padding: 9px 13px;
+    border: 1px solid rgba(66, 63, 58, 0.48) !important;
+    border-radius: 0;
+    color: #3f3d39 !important;
+    font: 600 11.5px/1 Arial, sans-serif;
+    letter-spacing: inherit;
+    background: rgba(247, 243, 234, 0.72) !important;
+    box-shadow: none;
+    backdrop-filter: blur(6px);
+    cursor: pointer;
+    transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
+}
+
+.hand-tracker-toggle span {
+    color: #000000 !important;
+    opacity: 1 !important;
+    text-shadow: none;
+}
+
+.hand-tracker-toggle:hover {
+    border-color: #292826;
+    background: rgba(247, 243, 234, 0.94) !important;
+    transform: translateY(-1px);
+}
+
+.hand-tracker-toggle:focus-visible {
+    outline: 1px solid #3f3d39;
+    outline-offset: 4px;
+}
+
+.hand-tracker-dot {
+    position: absolute;
+    left: 12px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #77736b;
+    box-shadow: none;
+}
+
+.hand-tracker.is-active .hand-tracker-dot {
+    background: #61e893;
+    box-shadow: 0 0 10px #61e893;
+}
+
+.hand-tracker-preview {
+    position: fixed;
+    right: clamp(12px, 1.8vw, 28px);
+    bottom: clamp(86px, 8vw, 120px);
+    width: 220px;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border: 1px solid rgba(235, 222, 197, 0.36);
+    border-radius: 2px;
+    background: #090b0f;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.38);
+}
+
+body:not(.view-hub) .hand-tracker-preview {
+    right: auto;
+    left: 14px;
+    bottom: 14px;
+    width: 132px;
+    border-color: rgba(255, 255, 255, 0.24);
+}
+
+body:not(.view-hub) .hand-tracker-status {
+    left: 5px;
+    right: 5px;
+    bottom: 5px;
+    padding: 4px 5px;
+    font-size: 14px;
+    letter-spacing: 0.06em;
+}
+
+.hand-tracker-preview video,
+.hand-tracker-preview canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1);
+}
+
+.hand-tracker-status {
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    bottom: 7px;
+    margin: 0;
+    padding: 6px 8px;
+    border-radius: 6px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.65);
+}
+
+.hand-tracker-help {
+    margin: 0 1px 0 0;
+    color: rgba(243, 238, 228, 0.62);
+    font-size: 14px;
+    text-shadow: 0 1px 4px #000;
+}
+
+@media (max-width: 700px) {
+    body.view-hub .hand-tracker-preview { width: 160px; }
+    body:not(.view-hub) .hand-tracker-preview { width: 108px; }
+    .hand-tracker-help { display: none; }
+}
+
+/* Keep Home — a 40px house icon — in a reserved upper-right corner across internal scenes;
+   art-audio.js docks the sound icon just to its left. */
+body.view-interaction .back-button {
+    top: 16px;
+    right: 16px;
+    left: auto;
+    width: 40px;
+    height: 40px;
+    min-height: 40px;
+    padding: 0;
+}
+
+/* Home is a bare icon on every scene: no square, border or blur behind it, only a soft shadow for contrast. Each
+   movement still sets its colour above; this strips the box those rules also paint. */
+.back-button {
+    border-color: transparent !important;
+    background: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
+}
+
+body.view-impressionism .memory-title {
+    max-width: min(34%, calc(93% - 124px));
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+    body.view-impressionism .memory-title {
+        max-width: min(60%, calc(93% - 124px));
+    }
+}
+
+/* ── Closing artwork ──────────────────────────────────────────────────────
+   Each movement ends on its representative work, drawn by a *-finale.html page in the
+   movement's own layout. Iframe movements load it in place; Surrealism lives in the hub,
+   so its finale page gets a frame over the room. */
+.surreal-finale-frame {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: #d9c9ad;
+}
+.surreal-finale-frame[hidden] { display: none; }
+body.showing-concept-finale .pull-chain { display: none !important; }
+
+.surreal-film-frame {
+    position: absolute;
+    inset: 0;
+    z-index: 19;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: #0d1220;
+}
+.surreal-film-frame[hidden] { display: none; }
+/* The way back to the concept film sits bottom-left, mirroring the way forward (.memory-enter, bottom-right), and is
+   the same underlined phrase — no box. It steps aside while the corpse game is open, whose own nav uses that edge. */
+.surreal-concept-back {
+    position: absolute;
+    left: 5%;
+    bottom: 5%;
+    z-index: 18;
+    padding: 10px 0;
+    border: 0;
+    border-bottom: 1px solid #ffffffa0;
+    border-radius: 0;
+    background: none;
+    color: #fff;
+    font: 14px/1.8 system-ui, sans-serif;
+    letter-spacing: .1em;
+    text-shadow: 0 2px 8px #000;
+    cursor: pointer;
+}
+.surreal-concept-back:hover { border-color: #f6dfaa; color: #f6dfaa; }
+.surreal-concept-back:focus-visible { outline: 2px solid #f6dfaa; outline-offset: 6px; }
+body.showing-surreal-film .surreal-concept-back,
+body.showing-concept-finale .surreal-concept-back,
+body.memory-open .surreal-concept-back { display: none; }
+body.showing-surreal-film .pull-chain,
+body.showing-surreal-film .memory-enter { display: none !important; }
