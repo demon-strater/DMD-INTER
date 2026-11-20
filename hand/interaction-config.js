@@ -28,6 +28,12 @@ export const HAND_CONFIG = Object.freeze({
     tracking: {
         lossGraceMs: 180
     },
+    // The middle of the camera's view, kept at the screen's 16:9, maps onto the whole screen so the
+    // index fingertip can reach every edge without the hand leaving the camera.
+    area: {
+        width: 0.76,
+        centerY: 0.42
+    },
     scroll: {
         travelPx: 54,
         resetTravelPx: 32,

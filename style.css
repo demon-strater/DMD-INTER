@@ -3506,15 +3506,7 @@ body:not(.view-hub) .hub-pager {
     background-repeat: no-repeat !important;
 }
 
-/* Local, on-device hand tracking controls */
-.hand-tracker {
-    display: none;
-}
-
-body:not(.view-hub) .hand-tracker-toggle {
-    display: none;
-}
-
+/* Local, on-device hand tracking: cursor states */
 .hand-cursor {
     position: fixed;
     left: 0;
@@ -3576,122 +3568,179 @@ body:not(.view-hub) .hand-tracker-toggle {
     to { opacity: 0.18; }
 }
 
-.hand-tracker-toggle {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-    min-width: 104px;
-    min-height: 38px;
-    padding: 9px 13px;
-    border: 1px solid rgba(66, 63, 58, 0.48) !important;
-    border-radius: 0;
-    color: #3f3d39 !important;
-    font: 600 11.5px/1 Arial, sans-serif;
-    letter-spacing: inherit;
-    background: rgba(247, 243, 234, 0.72) !important;
-    box-shadow: none;
-    backdrop-filter: blur(6px);
-    cursor: pointer;
-    transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
+/* Hand control (hand-tracking.js). The camera feed is never shown: the video element only feeds the model.
+   Bottom right: a bare hand icon in the scene's Home ink switches the camera on and off.
+   Top right, under Home: the recognition panel draws the camera's field, the 16:9 part of it that maps
+   onto the screen, and the recognised hand, with what the hand is doing now and what to do next. */
+.hand-tracker {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483000;
+    pointer-events: none;
 }
 
-.hand-tracker-toggle span {
-    color: #000000 !important;
-    opacity: 1 !important;
-    text-shadow: none;
+.hand-tracker-video {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 2px;
+    height: 2px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.hand-tracker-toggle {
+    position: fixed;
+    right: 14px;
+    bottom: 14px;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    color: #2b2620;
+    cursor: pointer;
+    pointer-events: auto;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
+    transition: transform 180ms ease, opacity 180ms ease;
+}
+
+body.view-hub .hand-tracker-toggle { filter: none; }
+
+.hand-tracker-toggle svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
 .hand-tracker-toggle:hover {
-    border-color: #292826;
-    background: rgba(247, 243, 234, 0.94) !important;
     transform: translateY(-1px);
+    opacity: 0.75;
 }
 
 .hand-tracker-toggle:focus-visible {
-    outline: 1px solid #3f3d39;
-    outline-offset: 4px;
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
 }
 
+/* Off: a hollow ring. On: filled green. Starting: pulsing. */
 .hand-tracker-dot {
     position: absolute;
-    left: 12px;
-    width: 6px;
-    height: 6px;
+    right: 6px;
+    top: 6px;
+    width: 7px;
+    height: 7px;
+    box-sizing: border-box;
+    border: 1.5px solid currentColor;
     border-radius: 50%;
-    background: #77736b;
-    box-shadow: none;
+    opacity: 0.7;
 }
 
-.hand-tracker.is-active .hand-tracker-dot {
+.hand-tracker-toggle[aria-pressed="true"] .hand-tracker-dot {
+    border-color: #2fbf6b;
     background: #61e893;
-    box-shadow: 0 0 10px #61e893;
+    box-shadow: 0 0 8px #61e893;
+    opacity: 1;
 }
 
-.hand-tracker-preview {
+.hand-tracker-toggle.is-starting .hand-tracker-dot {
+    animation: handTrackerStarting 700ms ease-in-out infinite alternate;
+}
+
+@keyframes handTrackerStarting {
+    to { opacity: 0.15; }
+}
+
+.hand-panel {
+    --tone: #a8a39a;
     position: fixed;
-    right: clamp(12px, 1.8vw, 28px);
-    bottom: clamp(86px, 8vw, 120px);
-    width: 220px;
-    aspect-ratio: 4 / 3;
-    overflow: hidden;
-    border: 1px solid rgba(235, 222, 197, 0.36);
-    border-radius: 2px;
-    background: #090b0f;
-    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.38);
-}
-
-body:not(.view-hub) .hand-tracker-preview {
-    right: auto;
-    left: 14px;
-    bottom: 14px;
-    width: 132px;
-    border-color: rgba(255, 255, 255, 0.24);
-}
-
-body:not(.view-hub) .hand-tracker-status {
-    left: 5px;
-    right: 5px;
-    bottom: 5px;
-    padding: 4px 5px;
-    font-size: 14px;
-    letter-spacing: 0.06em;
-}
-
-.hand-tracker-preview video,
-.hand-tracker-preview canvas {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transform: scaleX(-1);
-}
-
-.hand-tracker-status {
-    position: absolute;
-    left: 8px;
-    right: 8px;
-    bottom: 7px;
-    margin: 0;
-    padding: 6px 8px;
+    right: 14px;
+    bottom: 62px;
+    width: 216px;
+    box-sizing: border-box;
+    padding: 8px 8px 11px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 6px;
-    text-align: center;
-    background: rgba(0, 0, 0, 0.65);
+    background: rgba(14, 15, 18, 0.66);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.24);
+    color: #f3eee4;
+    font-family: Arial, 'Malgun Gothic', sans-serif;
+    pointer-events: none;
 }
 
-.hand-tracker-help {
-    margin: 0 1px 0 0;
-    color: rgba(243, 238, 228, 0.62);
-    font-size: 14px;
-    text-shadow: 0 1px 4px #000;
+.hand-panel[hidden] { display: none; }
+
+/* In the hub it sits in the empty lower corner, beside its switch and below the movement's long title;
+   inside a movement the scene's own controls own the lower corners (the lamp's pull chain, the toolbars),
+   so it moves up under Home. */
+body.view-hub .hand-panel {
+    right: 62px;
+    bottom: 14px;
 }
+
+body.view-interaction .hand-panel {
+    top: 64px;
+    bottom: auto;
+}
+
+.hand-panel[data-tone="ready"] { --tone: #61e893; }
+.hand-panel[data-tone="select"] { --tone: #e7c27f; }
+.hand-panel[data-tone="warn"] { --tone: #f0b46e; }
+.hand-panel[data-tone="back"] { --tone: #ef8a73; }
+
+.hand-panel canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 3px;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.hand-panel-state {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 9px 2px 0;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.3;
+    word-break: keep-all;
+}
+
+.hand-panel-state::before {
+    content: '';
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--tone);
+    box-shadow: 0 0 8px var(--tone);
+}
+
+.hand-panel-hint {
+    margin: 4px 2px 0;
+    white-space: pre-line;
+    color: rgba(243, 238, 228, 0.8);
+    font-size: 17px;
+    line-height: 1.35;
+    word-break: keep-all;
+}
+
+.hand-panel-hint:empty { display: none; }
 
 @media (max-width: 700px) {
-    body.view-hub .hand-tracker-preview { width: 160px; }
-    body:not(.view-hub) .hand-tracker-preview { width: 108px; }
-    .hand-tracker-help { display: none; }
+    .hand-panel { width: 160px; }
+    .hand-panel-state, .hand-panel-hint { font-size: 15px; }
 }
 
 /* Keep Home — a 40px house icon — in a reserved upper-right corner across internal scenes;

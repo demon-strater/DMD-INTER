@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DMD INTER</title>
-    <link rel="stylesheet" href="style.css?v=tidy-3">
+    <link rel="stylesheet" href="style.css?v=hand-1">
 <script src="art-audio.js?v=4" defer></script></head>
 <body class="view-hub">
     <div class="cinematic-stage" id="cinematicStage">
@@ -152,26 +152,29 @@
 
     </div>
 
-    <aside class="hand-tracker" id="handTracker" aria-label="Hand gesture controls">
-        <button class="hand-tracker-toggle" id="handTrackerToggle" type="button" aria-pressed="false">
+    <!-- Hand control: the camera feed itself is never shown. The panel draws only what the model
+         recognises — the camera's field, the part of it that maps onto the screen, and the hand skeleton. -->
+    <aside class="hand-tracker" id="handTracker" aria-label="손 인식">
+        <section class="hand-panel" id="handTrackerPanel" aria-label="손 인식 영역" data-tone="wait" hidden>
+            <canvas id="handTrackerCanvas" width="640" height="480" aria-hidden="true"></canvas>
+            <p class="hand-panel-state" id="handTrackerState" role="status">준비 중</p>
+            <p class="hand-panel-hint" id="handTrackerHint"></p>
+        </section>
+        <video class="hand-tracker-video" id="handTrackerVideo" playsinline muted aria-hidden="true"></video>
+        <button class="hand-tracker-toggle" id="handTrackerToggle" type="button" aria-pressed="false" aria-label="손 인식 켜기" title="손 인식 켜기">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 11V6a2 2 0 0 0-4 0"/><path d="M14 10V4a2 2 0 0 0-4 0v2"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-6-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>
             <span class="hand-tracker-dot" aria-hidden="true"></span>
-            <span id="handTrackerLabel">HAND</span>
         </button>
-        <div class="hand-tracker-preview" id="handTrackerPreview" hidden>
-            <video id="handTrackerVideo" playsinline muted aria-hidden="true"></video>
-            <canvas id="handTrackerCanvas" aria-hidden="true"></canvas>
-            <p class="hand-tracker-status" id="handTrackerStatus" role="status">CAMERA READY</p>
-        </div>
     </aside>
     <div class="hand-cursor" id="handCursor" aria-hidden="true"></div>
 
-    <script src="script.js?v=caption-4"></script>
+    <script src="script.js?v=hand-1"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="surreal-memory.css?v=tidy-1">
     <link rel="stylesheet" href="movement-frame.css?v=1">
     <script src="surreal-memory.js?v=frame-1" defer></script>
-    <script type="module" src="hand-tracking.js?v=hand-ux-state-1"></script>
+    <script type="module" src="hand-tracking.js?v=hand-panel-1"></script>
     <script>
         // Opened by double-clicking index.html: the browser blocks the movement pages' module scripts,
         // so the paintings can't be entered. Say so instead of failing silently.

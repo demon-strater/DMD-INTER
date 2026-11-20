@@ -1154,6 +1154,14 @@ document.addEventListener('DOMContentLoaded', () => {
         targetDocument.head?.appendChild(style);
     }
 
+    // Outline only real controls; a heading or a whole stage under the fingertip stays as it is.
+    function isHandFeedbackTarget(destination) {
+        const element = destination?.target;
+        if (!element?.matches?.('button, a[href], input, select, textarea, [role="button"], summary, label')) return false;
+        const rect = element.getBoundingClientRect();
+        return rect.width < destination.view.innerWidth * 0.6 && rect.height < destination.view.innerHeight * 0.6;
+    }
+
     function clearHandTargetFeedback(destination, className) {
         destination?.target?.classList?.remove(className);
     }
@@ -1173,9 +1181,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!handHoverTarget && now - handHoverCandidateSince >= handHoverDwellMs) {
             handHoverTarget = destination;
-            ensureHandFeedbackStyles(destination.view.document);
-            destination.target.classList?.add('hand-hover-target');
-            cursor?.classList.add('has-target');
+            if (isHandFeedbackTarget(destination)) {
+                ensureHandFeedbackStyles(destination.view.document);
+                destination.target.classList?.add('hand-hover-target');
+                cursor?.classList.add('has-target');
+            }
         }
     }
 
@@ -1223,7 +1233,10 @@ document.addEventListener('DOMContentLoaded', () => {
             handClickDispatched = false;
             if (handPointerTarget) {
                 clearHandTargetFeedback(handPointerTarget, 'hand-hover-target');
-                handPointerTarget.target.classList?.add('hand-commit-target');
+                if (isHandFeedbackTarget(handPointerTarget)) {
+                    ensureHandFeedbackStyles(handPointerTarget.view.document);
+                    handPointerTarget.target.classList?.add('hand-commit-target');
+                }
                 document.getElementById('handCursor')?.classList.add('is-committed');
                 if (!body.classList.contains('view-hub')) {
                     dispatchHandEvent(handPointerTarget, 'pointerdown', 'PointerEvent', 1);
